@@ -19,6 +19,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { UserProfile, AIListenResponse, EmotionalJourneyEntry } from '../types';
+import { COMMUNITY_CIRCLES } from '../data/circlesData';
 
 interface MessageItem {
   id: string;
@@ -77,11 +78,31 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
   const recognitionRef = useRef<any>(null);
 
   const samplePrompts = [
-    { label: 'Postpartum Exhaustion', text: "I feel like a terrible mother. My baby won't stop crying and I cried in the shower because I feel so lost and exhausted." },
-    { label: 'Heartbreak & Betrayal', text: "I discovered deceit in my relationship. The physical pain in my chest is suffocating, and I feel embarrassed for trusting so blindly." },
-    { label: 'Corporate Burnout & Anxiety', text: "I'm pretending to be fine at work, but I had a panic attack in the bathroom. I feel like an imposter about to collapse." },
-    { label: 'Grief & Bereavement', text: "Everyone expects me to be okay by now, but the world feels color-drained and empty without my loved one." },
-    { label: 'Loneliness in a New City', text: "I moved away for work. Coming home to an empty room every night hurts in a way I didn't expect." },
+    {
+      label: 'Postpartum Exhaustion',
+      text: "I feel like a terrible mother. My baby won't stop crying and I cried in the shower because I feel so lost and exhausted.",
+      style: 'bg-rose-50/90 text-rose-900 border-rose-200/90 hover:border-rose-400 hover:bg-rose-100/80 shadow-2xs',
+    },
+    {
+      label: 'Heartbreak & Betrayal',
+      text: "I discovered deceit in my relationship. The physical pain in my chest is suffocating, and I feel embarrassed for trusting so blindly.",
+      style: 'bg-fuchsia-50/90 text-fuchsia-900 border-fuchsia-200/90 hover:border-fuchsia-400 hover:bg-fuchsia-100/80 shadow-2xs',
+    },
+    {
+      label: 'Corporate Burnout & Anxiety',
+      text: "I'm pretending to be fine at work, but I had a panic attack in the bathroom. I feel like an imposter about to collapse.",
+      style: 'bg-amber-50/90 text-amber-900 border-amber-200/90 hover:border-amber-400 hover:bg-amber-100/80 shadow-2xs',
+    },
+    {
+      label: 'Grief & Bereavement',
+      text: "Everyone expects me to be okay by now, but the world feels color-drained and empty without my loved one.",
+      style: 'bg-indigo-50/90 text-indigo-900 border-indigo-200/90 hover:border-indigo-400 hover:bg-indigo-100/80 shadow-2xs',
+    },
+    {
+      label: 'Loneliness in a New City',
+      text: "I moved away for work. Coming home to an empty room every night hurts in a way I didn't expect.",
+      style: 'bg-emerald-50/90 text-emerald-900 border-emerald-200/90 hover:border-emerald-400 hover:bg-emerald-100/80 shadow-2xs',
+    },
   ];
 
   // Speech Recognition setup (Voice Venting)
@@ -376,10 +397,10 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
         </div>
       )}
 
-      {/* Sample Vent Prompts */}
+      {/* Sample Vent Prompts with Distinct Aesthetic Pastel Palettes */}
       <div className="mb-4">
-        <label className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
-          Or tap a situation to start:
+        <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+          Or tap a situation to begin:
         </label>
         <div className="flex flex-wrap gap-2">
           {samplePrompts.map((p, idx) => (
@@ -389,7 +410,7 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
                 setVentText(p.text);
                 setSelectedTopic(p.label);
               }}
-              className="px-3 py-1.5 rounded-full text-xs bg-white hover:bg-purple-50 border border-purple-200 text-stone-700 transition hover:border-purple-300 text-left cursor-pointer"
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition border text-left cursor-pointer ${p.style}`}
             >
               {p.label}
             </button>
@@ -400,108 +421,127 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
       {/* Multi-Turn Conversation Thread */}
       <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-lg shadow-purple-100/50 border border-purple-200/90 mb-6">
         <div className="space-y-6 max-h-[560px] overflow-y-auto pr-1">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {msg.role === 'model' && (
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
-                  <Bot className="w-5 h-5" />
-                </div>
-              )}
+          {messages.map((msg) => {
+            const matchedCircle = msg.recommendedCircle
+              ? COMMUNITY_CIRCLES.find(
+                  (c) =>
+                    c.id === msg.recommendedCircle?.id ||
+                    c.title.toLowerCase() === msg.recommendedCircle?.title.toLowerCase()
+                ) || COMMUNITY_CIRCLES[0]
+              : null;
 
+            return (
               <div
-                className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 sm:p-5 ${
-                  msg.role === 'user'
-                    ? 'bg-purple-600 text-white shadow-sm rounded-tr-xs'
-                    : 'bg-purple-50/70 border border-purple-200/70 text-stone-800 rounded-tl-xs shadow-2xs'
-                }`}
+                key={msg.id}
+                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2 mb-2 pb-1 border-b border-purple-200/40 text-xs">
-                  <span className={`font-bold ${msg.role === 'user' ? 'text-purple-100' : 'text-purple-900'}`}>
-                    {msg.role === 'user' ? `🌸 ${userProfile.pseudonym}` : 'Ananya (AI Companion)'}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[11px] ${msg.role === 'user' ? 'text-purple-200' : 'text-stone-400'}`}>
-                      {msg.timestamp}
+                {msg.role === 'model' && (
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                    <Bot className="w-5 h-5" />
+                  </div>
+                )}
+
+                <div
+                  className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 sm:p-5 ${
+                    msg.role === 'user'
+                      ? 'bg-purple-600 text-white shadow-sm rounded-tr-xs'
+                      : 'bg-purple-50/70 border border-purple-200/70 text-stone-800 rounded-tl-xs shadow-2xs'
+                  }`}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between gap-2 mb-2 pb-1 border-b border-purple-200/40 text-xs">
+                    <span className={`font-bold ${msg.role === 'user' ? 'text-purple-100' : 'text-purple-900'}`}>
+                      {msg.role === 'user' ? `🌸 ${userProfile.pseudonym}` : 'Ananya (AI Companion)'}
                     </span>
-                    {msg.role === 'model' && (
-                      <button
-                        onClick={() => handlePlayVoice(msg.id, msg.content)}
-                        className="p-1 rounded-full hover:bg-purple-200/60 text-purple-700 transition"
-                        title="Listen to soothing voice"
-                      >
-                        {activePlayingId === msg.id ? (
-                          <VolumeX className="w-3.5 h-3.5 text-purple-700" />
-                        ) : (
-                          <Volume2 className="w-3.5 h-3.5 text-purple-700" />
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Message Content */}
-                <div className="text-sm leading-relaxed whitespace-pre-line space-y-2 font-sans">
-                  {msg.content}
-                </div>
-
-                {/* Soothing Affirmation */}
-                {msg.soothingAffirmation && (
-                  <div className="mt-4 p-3 rounded-2xl bg-purple-100/80 border border-purple-200 text-xs text-purple-950 font-serif italic">
-                    "{msg.soothingAffirmation}"
-                  </div>
-                )}
-
-                {/* Recommended Circle Card */}
-                {msg.recommendedCircle && (
-                  <div className="mt-4 p-4 rounded-2xl bg-white border-2 border-purple-300 shadow-sm">
-                    <div className="flex items-center gap-1.5 text-purple-800 text-[11px] font-bold uppercase tracking-wide mb-1">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>Recommended Sister Circle</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[11px] ${msg.role === 'user' ? 'text-purple-200' : 'text-stone-400'}`}>
+                        {msg.timestamp}
+                      </span>
+                      {msg.role === 'model' && (
+                        <button
+                          onClick={() => handlePlayVoice(msg.id, msg.content)}
+                          className="p-1 rounded-full hover:bg-purple-200/60 text-purple-700 transition"
+                          title="Listen to soothing voice"
+                        >
+                          {activePlayingId === msg.id ? (
+                            <VolumeX className="w-3.5 h-3.5 text-purple-700" />
+                          ) : (
+                            <Volume2 className="w-3.5 h-3.5 text-purple-700" />
+                          )}
+                        </button>
+                      )}
                     </div>
-                    <h4 className="font-serif font-bold text-sm text-stone-900">
-                      {msg.recommendedCircle.title}
-                    </h4>
-                    <p className="mt-1 text-xs text-stone-600 leading-relaxed">
-                      {msg.recommendedCircle.reason}
-                    </p>
+                  </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-purple-100 flex flex-wrap items-center justify-between gap-2">
-                      <button
-                        onClick={() => onJoinCircle(msg.recommendedCircle!.id)}
-                        className="py-1.5 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-                      >
-                        <span>Enter Sister Circle</span>
-                        <Users className="w-3.5 h-3.5" />
-                      </button>
+                  {/* Message Content */}
+                  <div className="text-sm leading-relaxed whitespace-pre-line space-y-2 font-sans">
+                    {msg.content}
+                  </div>
 
-                      <button
-                        onClick={() => {
-                          onShareToCommunity(
-                            msg.content,
-                            msg.recommendedCircle!.id,
-                            msg.recommendedCircle!.title
-                          );
-                          setSharedNoticeId(msg.id);
-                        }}
-                        className="py-1.5 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium text-xs transition flex items-center gap-1 cursor-pointer"
-                      >
-                        <Share2 className="w-3.5 h-3.5 text-purple-600" />
-                        <span>Share for Sister Hugs</span>
-                      </button>
+                  {/* Soothing Affirmation */}
+                  {msg.soothingAffirmation && (
+                    <div className="mt-4 p-3 rounded-2xl bg-purple-100/80 border border-purple-200 text-xs text-purple-950 font-serif italic">
+                      "{msg.soothingAffirmation}"
                     </div>
+                  )}
 
-                    {sharedNoticeId === msg.id && (
-                      <div className="mt-2 text-[11px] text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 p-1.5 rounded-lg border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Shared anonymously to circle!</span>
+                  {/* Recommended Circle Card with Matched Aesthetic Color Box */}
+                  {msg.recommendedCircle && matchedCircle && (
+                    <div
+                      className={`mt-4 p-4 rounded-3xl border-2 shadow-xs ${
+                        matchedCircle.colorTheme?.cardBg || 'bg-white'
+                      } ${matchedCircle.colorTheme?.border || 'border-purple-300'}`}
+                    >
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1">
+                        <span className={`p-1 rounded-lg bg-white shadow-2xs ${matchedCircle.colorTheme?.iconColor || 'text-purple-600'}`}>
+                          <Users className="w-3.5 h-3.5" />
+                        </span>
+                        <span className={matchedCircle.colorTheme?.accentText || 'text-purple-900'}>
+                          Recommended Sister Circle
+                        </span>
                       </div>
-                    )}
-                  </div>
-                )}
+                      <h4 className="font-serif font-bold text-sm text-stone-900">
+                        {msg.recommendedCircle.title}
+                      </h4>
+                      <p className="mt-1 text-xs text-stone-600 leading-relaxed font-light">
+                        {msg.recommendedCircle.reason}
+                      </p>
+
+                      <div className="mt-3 pt-2.5 border-t border-stone-200/70 flex flex-wrap items-center justify-between gap-2">
+                        <button
+                          onClick={() => onJoinCircle(msg.recommendedCircle!.id)}
+                          className="py-1.5 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                        >
+                          <span>Enter Sister Circle</span>
+                          <Users className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            onShareToCommunity(
+                              msg.content,
+                              msg.recommendedCircle!.id,
+                              msg.recommendedCircle!.title
+                            );
+                            setSharedNoticeId(msg.id);
+                          }}
+                          className={`py-1.5 px-3 rounded-xl font-medium text-xs transition flex items-center gap-1 cursor-pointer border ${
+                            matchedCircle.colorTheme?.hugBg || 'bg-purple-50 text-purple-800 border-purple-200'
+                          }`}
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>Share for Sister Hugs</span>
+                        </button>
+                      </div>
+
+                      {sharedNoticeId === msg.id && (
+                        <div className="mt-2 text-[11px] text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 p-1.5 rounded-lg border border-emerald-200">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Shared anonymously to circle!</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                 {/* Professional Support Suggestion */}
                 {msg.suggestProfessionalSupport && (
@@ -532,7 +572,8 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
 
           {/* Typing Indicator */}
           {isLoading && (

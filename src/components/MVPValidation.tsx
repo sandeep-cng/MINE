@@ -28,6 +28,15 @@ const MVP_FEATURE_OPTIONS = [
     desc: 'Real-time phone-like voice conversation with an empathetic AI listener (powered by Gemini Live).',
     icon: Headphones,
     category: 'AI Empathy',
+    colorName: 'Lavender Mist',
+    style: {
+      cardNormal: 'bg-gradient-to-br from-purple-50/80 via-white to-violet-50/50 border-purple-200/90 hover:border-purple-400',
+      cardSelected: 'bg-gradient-to-br from-purple-100/90 via-purple-50 to-violet-100/80 border-purple-500 shadow-md shadow-purple-100 ring-2 ring-purple-400/40',
+      iconBoxNormal: 'bg-purple-100 text-purple-700',
+      iconBoxSelected: 'bg-purple-600 text-white shadow-xs',
+      badge: 'bg-purple-100 text-purple-900 border-purple-200',
+      titleColor: 'text-purple-950',
+    },
   },
   {
     id: 'whatsapp_daily',
@@ -35,6 +44,15 @@ const MVP_FEATURE_OPTIONS = [
     desc: 'A gentle 30-second audio breath & mindfulness prompt sent directly to your WhatsApp each night.',
     icon: MessageSquare,
     category: 'Daily Care',
+    colorName: 'Matcha Mint',
+    style: {
+      cardNormal: 'bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 border-emerald-200/90 hover:border-emerald-400',
+      cardSelected: 'bg-gradient-to-br from-emerald-100/90 via-emerald-50 to-teal-100/80 border-emerald-500 shadow-md shadow-emerald-100 ring-2 ring-emerald-400/40',
+      iconBoxNormal: 'bg-emerald-100 text-emerald-700',
+      iconBoxSelected: 'bg-emerald-600 text-white shadow-xs',
+      badge: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+      titleColor: 'text-emerald-950',
+    },
   },
   {
     id: 'licensed_therapy',
@@ -42,6 +60,15 @@ const MVP_FEATURE_OPTIONS = [
     desc: 'Affordable, accredited female trauma, postpartum, and relationship counselors on demand.',
     icon: ShieldCheck,
     category: 'Clinical',
+    colorName: 'Rose Quartz',
+    style: {
+      cardNormal: 'bg-gradient-to-br from-rose-50/80 via-white to-pink-50/50 border-rose-200/90 hover:border-rose-400',
+      cardSelected: 'bg-gradient-to-br from-rose-100/90 via-rose-50 to-pink-100/80 border-rose-500 shadow-md shadow-rose-100 ring-2 ring-rose-400/40',
+      iconBoxNormal: 'bg-rose-100 text-rose-700',
+      iconBoxSelected: 'bg-rose-600 text-white shadow-xs',
+      badge: 'bg-rose-100 text-rose-900 border-rose-200',
+      titleColor: 'text-rose-950',
+    },
   },
   {
     id: 'anonymous_journal',
@@ -49,6 +76,15 @@ const MVP_FEATURE_OPTIONS = [
     desc: 'Voice & text journal that tracks your emotional healing trajectory with gentle monthly insights.',
     icon: BookOpen,
     category: 'Self-Care',
+    colorName: 'Honey Amber',
+    style: {
+      cardNormal: 'bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 border-amber-200/90 hover:border-amber-400',
+      cardSelected: 'bg-gradient-to-br from-amber-100/90 via-amber-50 to-orange-100/80 border-amber-500 shadow-md shadow-amber-100 ring-2 ring-amber-400/40',
+      iconBoxNormal: 'bg-amber-100 text-amber-700',
+      iconBoxSelected: 'bg-amber-600 text-white shadow-xs',
+      badge: 'bg-amber-100 text-amber-900 border-amber-200',
+      titleColor: 'text-amber-950',
+    },
   },
   {
     id: 'sister_circles',
@@ -56,6 +92,15 @@ const MVP_FEATURE_OPTIONS = [
     desc: 'Small, camera-off voice circles where 4-5 verified sisters share and hold space together.',
     icon: Calendar,
     category: 'Sisterhood',
+    colorName: 'Cornflower Blue',
+    style: {
+      cardNormal: 'bg-gradient-to-br from-sky-50/80 via-white to-indigo-50/50 border-sky-200/90 hover:border-sky-400',
+      cardSelected: 'bg-gradient-to-br from-sky-100/90 via-sky-50 to-indigo-100/80 border-sky-500 shadow-md shadow-sky-100 ring-2 ring-sky-400/40',
+      iconBoxNormal: 'bg-sky-100 text-sky-700',
+      iconBoxSelected: 'bg-sky-600 text-white shadow-xs',
+      badge: 'bg-sky-100 text-sky-900 border-sky-200',
+      titleColor: 'text-sky-950',
+    },
   },
   {
     id: 'mentor_matching',
@@ -63,6 +108,15 @@ const MVP_FEATURE_OPTIONS = [
     desc: 'Get paired with a sister who has already navigated and healed from your exact same situation.',
     icon: Heart,
     category: 'Mentorship',
+    colorName: 'Mauve Orchid',
+    style: {
+      cardNormal: 'bg-gradient-to-br from-fuchsia-50/80 via-white to-purple-50/50 border-fuchsia-200/90 hover:border-fuchsia-400',
+      cardSelected: 'bg-gradient-to-br from-fuchsia-100/90 via-fuchsia-50 to-purple-100/80 border-fuchsia-500 shadow-md shadow-fuchsia-100 ring-2 ring-fuchsia-400/40',
+      iconBoxNormal: 'bg-fuchsia-100 text-fuchsia-700',
+      iconBoxSelected: 'bg-fuchsia-600 text-white shadow-xs',
+      badge: 'bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200',
+      titleColor: 'text-fuchsia-950',
+    },
   },
 ];
 
@@ -206,7 +260,7 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {MVP_FEATURE_OPTIONS.map((opt) => {
                 const Icon = opt.icon;
                 const isSelected = selectedFeatures.includes(opt.id);
@@ -214,31 +268,41 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
                   <div
                     key={opt.id}
                     onClick={() => toggleFeature(opt.id)}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${
-                      isSelected
-                        ? 'bg-purple-50 border-purple-500 shadow-2xs'
-                        : 'bg-white border-stone-200 hover:border-purple-200 hover:bg-purple-50/20'
+                    className={`p-4.5 rounded-3xl border-2 transition-all duration-200 cursor-pointer flex items-start gap-3.5 relative overflow-hidden group ${
+                      isSelected ? opt.style.cardSelected : opt.style.cardNormal
                     }`}
                   >
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition ${
-                        isSelected
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-stone-100 text-stone-500'
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                        isSelected ? opt.style.iconBoxSelected : opt.style.iconBoxNormal
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4.5 h-4.5" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-stone-900">{opt.title}</span>
-                        <span className="text-[10px] text-purple-700 font-semibold bg-purple-100 px-2 py-0.5 rounded-full">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className={`text-xs font-bold leading-snug ${opt.style.titleColor}`}>
+                          {opt.title}
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${opt.style.badge}`}>
                           {opt.category}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-stone-600 leading-relaxed font-light">
+                      <p className="mt-1.5 text-xs text-stone-600 leading-relaxed font-light">
                         {opt.desc}
                       </p>
+                      <div className="mt-2.5 flex items-center justify-between text-[11px]">
+                        <span className="text-[10px] text-stone-400 font-medium">
+                          Palette: {opt.colorName}
+                        </span>
+                        <span
+                          className={`font-semibold flex items-center gap-1 ${
+                            isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'
+                          }`}
+                        >
+                          {isSelected ? '✓ Selected' : '+ Add Vote'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );

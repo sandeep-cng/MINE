@@ -193,19 +193,28 @@ export const ProfessionalSupport: React.FC<ProfessionalSupportProps> = ({
             <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider mb-2">
               1. What is your primary emotional or mental health concern?
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {concernOptions.map((c) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {[
+                { label: 'Severe Anxiety & Panic', theme: 'border-purple-200 bg-purple-50/50 hover:border-purple-400 text-purple-950' },
+                { label: 'Depression & Feeling Numb', theme: 'border-indigo-200 bg-indigo-50/50 hover:border-indigo-400 text-indigo-950' },
+                { label: 'Postpartum Depression / Overwhelm', theme: 'border-rose-200 bg-rose-50/50 hover:border-rose-400 text-rose-950' },
+                { label: 'Relationship Heartbreak & Trauma', theme: 'border-fuchsia-200 bg-fuchsia-50/50 hover:border-fuchsia-400 text-fuchsia-950' },
+                { label: 'Grief, Loss & Bereavement', theme: 'border-sky-200 bg-sky-50/50 hover:border-sky-400 text-sky-950' },
+                { label: 'Domestic Stress & Family Pressure', theme: 'border-violet-200 bg-violet-50/50 hover:border-violet-400 text-violet-950' },
+                { label: 'Workplace Burnout & Imposter Syndrome', theme: 'border-amber-200 bg-amber-50/50 hover:border-amber-400 text-amber-950' },
+                { label: 'Other Emotional Struggle', theme: 'border-emerald-200 bg-emerald-50/50 hover:border-emerald-400 text-emerald-950' },
+              ].map(({ label, theme }) => (
                 <button
                   type="button"
-                  key={c}
-                  onClick={() => setConcernType(c)}
-                  className={`p-3 rounded-xl text-xs font-medium text-left border transition cursor-pointer ${
-                    concernType === c
-                      ? 'bg-purple-50 border-purple-500 text-purple-950 font-bold shadow-2xs'
-                      : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
+                  key={label}
+                  onClick={() => setConcernType(label)}
+                  className={`p-3 rounded-2xl text-xs font-medium text-left border-2 transition cursor-pointer ${
+                    concernType === label
+                      ? 'bg-purple-100/90 border-purple-600 text-purple-950 font-bold shadow-xs ring-2 ring-purple-400/30'
+                      : `${theme}`
                   }`}
                 >
-                  {c}
+                  {label}
                 </button>
               ))}
             </div>
@@ -216,21 +225,26 @@ export const ProfessionalSupport: React.FC<ProfessionalSupportProps> = ({
             <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider mb-2">
               2. How urgent is your need for professional support?
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {urgencyOptions.map((u) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {[
+                { label: 'Immediate (High Distress)', value: 'Immediate', isPriority: true, theme: 'bg-rose-50/60 border-rose-200 hover:border-rose-400 text-rose-950' },
+                { label: 'Within 24-48 hours', value: 'Within 24-48 hours', theme: 'bg-amber-50/60 border-amber-200 hover:border-amber-400 text-amber-950' },
+                { label: 'Within 1-2 weeks', value: 'Within 1-2 weeks', theme: 'bg-purple-50/60 border-purple-200 hover:border-purple-400 text-purple-950' },
+                { label: 'Just exploring options', value: 'Just exploring', theme: 'bg-emerald-50/60 border-emerald-200 hover:border-emerald-400 text-emerald-950' },
+              ].map((u) => (
                 <button
                   type="button"
                   key={u.value}
                   onClick={() => setUrgency(u.value)}
-                  className={`p-3 rounded-xl text-xs font-medium text-left border transition cursor-pointer flex items-center justify-between ${
+                  className={`p-3 rounded-2xl text-xs font-medium text-left border-2 transition cursor-pointer flex items-center justify-between ${
                     urgency === u.value
-                      ? 'bg-purple-50 border-purple-500 text-purple-950 font-bold shadow-2xs'
-                      : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
+                      ? 'bg-purple-100/90 border-purple-600 text-purple-950 font-bold shadow-xs ring-2 ring-purple-400/30'
+                      : `${u.theme}`
                   }`}
                 >
                   <span>{u.label}</span>
-                  {u.value === 'Immediate' && (
-                    <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-bold">
+                  {u.isPriority && (
+                    <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold border border-red-200">
                       Priority
                     </span>
                   )}
@@ -239,26 +253,52 @@ export const ProfessionalSupport: React.FC<ProfessionalSupportProps> = ({
             </div>
           </div>
 
-          {/* 3. Preferred Mode */}
+          {/* 3. Preferred Mode with Distinct Aesthetic Palettes */}
           <div className="mb-6">
             <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider mb-2">
               3. Preferred Consultation Format
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {modeOptions.map((m) => {
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  label: 'WhatsApp Confidential Chat',
+                  value: 'WhatsApp Chat & Voice',
+                  icon: MessageSquare,
+                  theme: 'bg-emerald-50/80 border-emerald-200/90 hover:border-emerald-400 text-emerald-950',
+                  iconColor: 'text-emerald-600',
+                  active: 'bg-emerald-100/90 border-emerald-600 ring-2 ring-emerald-400/30',
+                },
+                {
+                  label: 'Private 1-on-1 Video Session',
+                  value: '1-on-1 Private Video',
+                  icon: Video,
+                  theme: 'bg-purple-50/80 border-purple-200/90 hover:border-purple-400 text-purple-950',
+                  iconColor: 'text-purple-600',
+                  active: 'bg-purple-100/90 border-purple-600 ring-2 ring-purple-400/30',
+                },
+                {
+                  label: 'Audio Phone Call',
+                  value: 'Audio Phone Call',
+                  icon: PhoneCall,
+                  theme: 'bg-amber-50/80 border-amber-200/90 hover:border-amber-400 text-amber-950',
+                  iconColor: 'text-amber-600',
+                  active: 'bg-amber-100/90 border-amber-600 ring-2 ring-amber-400/30',
+                },
+              ].map((m) => {
                 const Icon = m.icon;
+                const isSelected = preferredMode === m.value;
                 return (
                   <button
                     type="button"
                     key={m.value}
                     onClick={() => setPreferredMode(m.value)}
-                    className={`p-3 rounded-xl text-xs font-medium text-center border transition cursor-pointer flex flex-col items-center gap-1.5 ${
-                      preferredMode === m.value
-                        ? 'bg-purple-50 border-purple-500 text-purple-950 font-bold shadow-2xs'
-                        : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
+                    className={`p-3.5 rounded-2xl text-xs font-semibold text-center border-2 transition cursor-pointer flex flex-col items-center gap-2 shadow-2xs ${
+                      isSelected ? m.active : m.theme
                     }`}
                   >
-                    <Icon className="w-4 h-4 text-purple-600" />
+                    <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-2xs">
+                      <Icon className={`w-4 h-4 ${m.iconColor}`} />
+                    </div>
                     <span>{m.label}</span>
                   </button>
                 );
@@ -373,41 +413,62 @@ export const ProfessionalSupport: React.FC<ProfessionalSupportProps> = ({
           </button>
         </div>
 
-        {/* Metrics Grid */}
+        {/* Metrics Grid with Distinct Aesthetic Jewel Colors */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-purple-900/60 p-4 rounded-2xl border border-purple-800">
-            <span className="text-xs text-purple-300 uppercase font-bold tracking-wider">
+          {/* Card 1: Amethyst Violet */}
+          <div className="bg-gradient-to-br from-purple-900/90 via-violet-950 to-indigo-950 p-5 rounded-3xl border-2 border-purple-500/70 shadow-lg shadow-purple-950/50 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-purple-300 bg-purple-800/80 px-2 py-0.5 rounded-full border border-purple-600/50">
+                AMETHYST • QUEUE
+              </span>
+            </div>
+            <span className="text-xs text-purple-200 uppercase font-semibold tracking-wider block mt-2">
               Total Care Requests Logged
             </span>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-black text-purple-200">
+              <span className="text-3xl font-black text-white">
                 {stats?.totalCount || 0}
               </span>
-              <span className="text-xs text-purple-400">women in queue</span>
+              <span className="text-xs text-purple-300">women recorded</span>
             </div>
           </div>
 
-          <div className="bg-purple-900/60 p-4 rounded-2xl border border-purple-800">
-            <span className="text-xs text-purple-300 uppercase font-bold tracking-wider">
+          {/* Card 2: Sunset Amber Topaz */}
+          <div className="bg-gradient-to-br from-amber-950/90 via-orange-950 to-stone-950 p-5 rounded-3xl border-2 border-amber-500/70 shadow-lg shadow-amber-950/50 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-200 bg-amber-900/80 px-2 py-0.5 rounded-full border border-amber-600/50">
+                TOPAZ • PRIORITY
+              </span>
+            </div>
+            <span className="text-xs text-amber-200 uppercase font-semibold tracking-wider block mt-2">
               Immediate High Distress
             </span>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-black text-amber-300">
+              <span className="text-3xl font-black text-amber-200">
                 {stats?.urgencyBreakdown?.['Immediate'] || 0}
               </span>
-              <span className="text-xs text-purple-400">priority flagged</span>
+              <span className="text-xs text-amber-300">urgent triage</span>
             </div>
           </div>
 
-          <div className="bg-purple-900/60 p-4 rounded-2xl border border-purple-800">
-            <span className="text-xs text-purple-300 uppercase font-bold tracking-wider">
+          {/* Card 3: Emerald Oasis */}
+          <div className="bg-gradient-to-br from-emerald-950/90 via-teal-950 to-stone-950 p-5 rounded-3xl border-2 border-emerald-500/70 shadow-lg shadow-emerald-950/50 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-200 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-600/50">
+                EMERALD • DISPATCH
+              </span>
+            </div>
+            <span className="text-xs text-emerald-200 uppercase font-semibold tracking-wider block mt-2">
               Director Alert Notification
             </span>
             <div className="mt-2">
-              <span className="text-xs font-mono text-emerald-300 break-all block">
+              <span className="text-xs font-mono text-emerald-300 break-all block font-bold">
                 {stats?.targetNotificationEmail || 'sonit.sandeep@gmail.com'}
               </span>
-              <span className="text-[11px] text-purple-400 mt-1 block">
+              <span className="text-[11px] text-emerald-300 mt-1 block">
                 {stats?.notificationsSentCount || 0} dispatch records
               </span>
             </div>

@@ -205,44 +205,45 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
         <div className="flex-1 overflow-y-auto pt-4 pr-1 space-y-6">
           {drawerTab === 'dashboard' ? (
             <div className="space-y-6">
-              {/* KPI Stat Cards */}
+              {/* KPI Stat Cards with Distinct Aesthetic Color Themes */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-purple-50/80 p-3.5 rounded-2xl border border-purple-200/80">
-                  <span className="text-[11px] font-bold uppercase text-purple-800 block">
+                <div className="bg-gradient-to-br from-purple-100/90 via-purple-50 to-violet-100/80 p-4 rounded-3xl border-2 border-purple-300/80 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-800 block">
                     Vents Shared
                   </span>
-                  <div className="flex items-baseline gap-1 mt-1">
+                  <div className="flex items-baseline gap-1 mt-1.5">
                     <span className="text-2xl font-black text-purple-950">{history.length}</span>
-                    <span className="text-xs text-purple-700 font-medium">sessions</span>
+                    <span className="text-xs text-purple-700 font-semibold">sessions</span>
                   </div>
                 </div>
 
-                <div className="bg-emerald-50/80 p-3.5 rounded-2xl border border-emerald-200">
-                  <span className="text-[11px] font-bold uppercase text-emerald-800 block">
+                <div className="bg-gradient-to-br from-emerald-100/90 via-emerald-50 to-teal-100/80 p-4 rounded-3xl border-2 border-emerald-300/80 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
                     Relief Index
                   </span>
-                  <div className="flex items-baseline gap-1 mt-1">
+                  <div className="flex items-baseline gap-1 mt-1.5">
                     <span className="text-2xl font-black text-emerald-950">+{reliefDelta}%</span>
-                    <span className="text-xs text-emerald-700 font-medium">calm delta</span>
+                    <span className="text-xs text-emerald-700 font-semibold">calm delta</span>
                   </div>
                 </div>
 
-                <div className="bg-indigo-50/80 p-3.5 rounded-2xl border border-indigo-200">
-                  <span className="text-[11px] font-bold uppercase text-indigo-800 block">
-                    Average Heaviness
+                <div className="bg-gradient-to-br from-sky-100/90 via-sky-50 to-indigo-100/80 p-4 rounded-3xl border-2 border-sky-300/80 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-800 block">
+                    Avg Heaviness
                   </span>
-                  <div className="flex items-baseline gap-1 mt-1">
+                  <div className="flex items-baseline gap-1 mt-1.5">
                     <span className="text-2xl font-black text-indigo-950">{avgDistress}/100</span>
+                    <span className="text-xs text-indigo-700 font-semibold">distress</span>
                   </div>
                 </div>
 
-                <div className="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
-                  <span className="text-[11px] font-bold uppercase text-amber-800 block">
-                    Sister Safe Streak
+                <div className="bg-gradient-to-br from-amber-100/90 via-amber-50 to-orange-100/80 p-4 rounded-3xl border-2 border-amber-300/80 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
+                    Sister Safe
                   </span>
-                  <div className="flex items-baseline gap-1 mt-1">
+                  <div className="flex items-baseline gap-1 mt-1.5">
                     <span className="text-2xl font-black text-amber-950">Active</span>
-                    <span className="text-xs text-amber-700 font-medium">held safe</span>
+                    <span className="text-xs text-amber-700 font-semibold">held safe</span>
                   </div>
                 </div>
               </div>

@@ -181,48 +181,104 @@ export const CommunityCircles: React.FC<CommunityCirclesProps> = ({
         </p>
       </div>
 
-      {/* Circle Selection Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none mb-6">
-        <button
-          onClick={() => setSelectedCircleId('all')}
-          className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition border ${
-            selectedCircleId === 'all'
-              ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-              : 'bg-white text-stone-700 border-stone-200 hover:bg-purple-50'
-          }`}
-        >
-          All Circles
-        </button>
-        {COMMUNITY_CIRCLES.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setSelectedCircleId(c.id)}
-            className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition flex items-center gap-2 border ${
-              selectedCircleId === c.id
-                ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-                : 'bg-white text-stone-700 border-stone-200 hover:bg-purple-50'
-            }`}
-          >
-            {getCircleIcon(c.iconName)}
-            <span>{c.title}</span>
-          </button>
-        ))}
+      {/* Sister Circles Aesthetic Boxes Grid (6 distinct jewel/pastel palettes) */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-bold text-stone-800 uppercase tracking-wider">
+            Choose a Sister Circle:
+          </span>
+          {selectedCircleId !== 'all' && (
+            <button
+              onClick={() => setSelectedCircleId('all')}
+              className="text-xs text-purple-700 hover:text-purple-900 font-semibold underline cursor-pointer"
+            >
+              Show All Circles
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {COMMUNITY_CIRCLES.map((c) => {
+            const isSelected = selectedCircleId === c.id;
+            return (
+              <div
+                key={c.id}
+                onClick={() => setSelectedCircleId(c.id)}
+                className={`p-4 rounded-3xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                  c.colorTheme?.cardBg || 'bg-white'
+                } ${
+                  isSelected
+                    ? 'border-purple-600 ring-2 ring-purple-400/40 shadow-md scale-[1.01]'
+                    : `${c.colorTheme?.border || 'border-stone-200'} ${c.colorTheme?.hoverBorder || 'hover:border-purple-400'}`
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span
+                      className={`p-2 rounded-xl bg-white shadow-2xs ${
+                        c.colorTheme?.iconColor || 'text-purple-600'
+                      }`}
+                    >
+                      {getCircleIcon(c.iconName)}
+                    </span>
+                    <span className="text-[10px] font-bold text-stone-500 bg-white/90 px-2 py-0.5 rounded-full border border-stone-200/80">
+                      {c.memberCount} sisters
+                    </span>
+                  </div>
+                  <h4 className="font-serif font-bold text-sm text-stone-900 mb-1 leading-snug">
+                    {c.title}
+                  </h4>
+                  <p className="text-xs text-stone-600 font-light leading-relaxed line-clamp-2">
+                    {c.shortDesc}
+                  </p>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-stone-200/60 flex items-center justify-between text-[11px]">
+                  <span className={`font-semibold ${c.colorTheme?.accentText || 'text-purple-900'}`}>
+                    {isSelected ? '✓ Currently Viewing' : 'Enter Circle'}
+                  </span>
+                  <span className="text-stone-400 group-hover:translate-x-1 transition-transform">
+                    →
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Selected Circle Banner in Purple */}
+      {/* Selected Circle Active Banner */}
       {activeCircleObj && (
-        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-purple-100/80 via-violet-50 to-indigo-50 border border-purple-200">
+        <div
+          className={`mb-6 p-5 sm:p-6 rounded-3xl bg-gradient-to-r ${
+            activeCircleObj.colorTheme?.gradient || 'from-purple-100/80 via-violet-50 to-indigo-50'
+          } border-2 ${activeCircleObj.colorTheme?.border || 'border-purple-200'} shadow-xs`}
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="font-serif text-lg font-bold text-stone-900 flex items-center gap-2">
-                {getCircleIcon(activeCircleObj.iconName)}
-                <span>{activeCircleObj.title}</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-2xl">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className={`p-2 rounded-xl bg-white shadow-2xs ${activeCircleObj.colorTheme?.iconColor || 'text-purple-600'}`}>
+                  {getCircleIcon(activeCircleObj.iconName)}
+                </span>
+                <h3 className="font-serif text-lg sm:text-xl font-bold text-stone-900">
+                  {activeCircleObj.title}
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-stone-700 max-w-2xl leading-relaxed">
                 {activeCircleObj.detailedDesc}
               </p>
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {activeCircleObj.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[10px] font-semibold bg-white/90 text-stone-700 px-2.5 py-0.5 rounded-full border border-stone-200"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/90 border border-purple-200 text-purple-900 shadow-2xs">
+            <div className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white border border-stone-200 text-stone-800 shadow-2xs shrink-0">
               {activeCircleObj.memberCount} Sisters in Circle
             </div>
           </div>
@@ -298,88 +354,114 @@ export const CommunityCircles: React.FC<CommunityCirclesProps> = ({
             </p>
           </div>
         ) : (
-          posts.map((post) => (
-            <article
-              key={post.id}
-              className="bg-white rounded-3xl p-5 sm:p-6 border border-purple-100 shadow-xs hover:border-purple-300 transition"
-            >
-              {/* Post Header */}
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-800 text-xs font-bold">
-                    {post.pseudonym.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-stone-900">{post.pseudonym}</span>
-                      {post.isVerified && (
-                        <span
-                          className="flex items-center gap-1 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200"
-                          title="Verified via 5-10s video call check"
-                        >
-                          <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                          <span>Verified</span>
-                        </span>
-                      )}
+          posts.map((post) => {
+            const postCircle =
+              COMMUNITY_CIRCLES.find(
+                (c) =>
+                  c.id === post.circleId ||
+                  c.title.toLowerCase() === post.circleTitle?.toLowerCase()
+              ) || COMMUNITY_CIRCLES[0];
+
+            return (
+              <article
+                key={post.id}
+                className={`rounded-3xl p-5 sm:p-6 border-2 transition-all duration-200 shadow-xs ${
+                  postCircle.colorTheme?.cardBg || 'bg-white'
+                } ${postCircle.colorTheme?.border || 'border-purple-100'} ${
+                  postCircle.colorTheme?.hoverBorder || 'hover:border-purple-300'
+                }`}
+              >
+                {/* Post Header */}
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`w-9 h-9 rounded-2xl flex items-center justify-center text-xs font-bold shadow-2xs ${
+                        postCircle.colorTheme?.badge || 'bg-purple-100 text-purple-800'
+                      }`}
+                    >
+                      {post.pseudonym.charAt(0)}
                     </div>
-                    <span className="text-[11px] text-stone-400">
-                      {new Date(post.createdAt).toLocaleDateString([], {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-stone-900">{post.pseudonym}</span>
+                        {post.isVerified && (
+                          <span
+                            className="flex items-center gap-1 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200"
+                            title="Verified via 5-10s video call check"
+                          >
+                            <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                            <span>Verified Sister</span>
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-stone-400">
+                        {new Date(post.createdAt).toLocaleDateString([], {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
                   </div>
+
+                  <span
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full border shadow-2xs ${
+                      postCircle.colorTheme?.badge ||
+                      'bg-purple-50 border-purple-200 text-purple-800'
+                    }`}
+                  >
+                    {post.circleTitle}
+                  </span>
                 </div>
 
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-800">
-                  {post.circleTitle}
-                </span>
-              </div>
+                {/* Content */}
+                <p className="text-stone-800 text-sm sm:text-base leading-relaxed whitespace-pre-line mb-4 font-sans">
+                  {post.content}
+                </p>
 
-              {/* Content */}
-              <p className="text-stone-800 text-sm sm:text-base leading-relaxed whitespace-pre-line mb-4 font-sans">
-                {post.content}
-              </p>
+                {/* Post Action Bar */}
+                <div className="pt-3 border-t border-stone-200/60 flex items-center justify-between gap-3 relative">
+                  {/* Send Hug Button */}
+                  <div className="relative">
+                    <button
+                      onClick={() => handleSendHug(post.id)}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition border cursor-pointer group shadow-2xs ${
+                        postCircle.colorTheme?.hugBg ||
+                        'bg-purple-50 hover:bg-purple-100 text-purple-800 border-purple-200'
+                      }`}
+                    >
+                      <Heart className="w-3.5 h-3.5 fill-current group-hover:scale-125 transition-transform" />
+                      <span>Send Virtual Hug</span>
+                      <span className="bg-white/90 px-1.5 py-0.2 rounded-full text-[11px] font-bold text-stone-800 shadow-2xs">
+                        {post.hugsCount || 0}
+                      </span>
+                    </button>
+                    {huggingPostId === post.id && (
+                      <span className="absolute -top-6 left-6 text-purple-700 font-bold text-xs animate-float-heart pointer-events-none">
+                        💜 +1 Hug!
+                      </span>
+                    )}
+                  </div>
 
-              {/* Post Action Bar */}
-              <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-3 relative">
-                {/* Send Hug Button */}
-                <div className="relative">
+                  {/* Reply Toggle */}
                   <button
-                    onClick={() => handleSendHug(post.id)}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold transition border border-purple-200 cursor-pointer group"
+                    onClick={() =>
+                      setExpandedReplies({
+                        ...expandedReplies,
+                        [post.id]: !expandedReplies[post.id],
+                      })
+                    }
+                    className="flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 transition"
                   >
-                    <Heart className="w-3.5 h-3.5 text-purple-600 fill-purple-500 group-hover:scale-125 transition-transform" />
-                    <span>Send Virtual Hug</span>
-                    <span className="bg-white px-1.5 py-0.2 rounded-full text-[11px] font-bold text-purple-900 shadow-2xs">
-                      {post.hugsCount || 0}
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>
+                      {post.replies?.length
+                        ? `${post.replies.length} Sister Replies`
+                        : 'Reply softly'}
                     </span>
                   </button>
-                  {huggingPostId === post.id && (
-                    <span className="absolute -top-6 left-6 text-purple-600 font-bold text-xs animate-float-heart pointer-events-none">
-                      💜 +1 Hug!
-                    </span>
-                  )}
                 </div>
-
-                {/* Reply Toggle */}
-                <button
-                  onClick={() =>
-                    setExpandedReplies({
-                      ...expandedReplies,
-                      [post.id]: !expandedReplies[post.id],
-                    })
-                  }
-                  className="flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-purple-700 transition"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>
-                    {post.replies?.length ? `${post.replies.length} Sister Replies` : 'Reply softly'}
-                  </span>
-                </button>
-              </div>
 
               {/* Replies Thread */}
               {(expandedReplies[post.id] || (post.replies && post.replies.length > 0)) && (
@@ -437,7 +519,8 @@ export const CommunityCircles: React.FC<CommunityCirclesProps> = ({
                 </div>
               )}
             </article>
-          ))
+            );
+          })
         )}
       </div>
     </div>

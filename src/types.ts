@@ -49,6 +49,17 @@ export interface CircleDefinition {
   iconName: string;
   memberCount: number;
   tags: string[];
+  colorTheme?: {
+    bg: string;
+    border: string;
+    badge: string;
+    iconColor: string;
+    gradient: string;
+    cardBg?: string;
+    hoverBorder?: string;
+    accentText?: string;
+    hugBg?: string;
+  };
 }
 
 export interface RecommendedCircle {
