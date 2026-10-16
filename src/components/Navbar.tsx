@@ -192,10 +192,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setDropdownOpen(false);
                           onOpenAdminStats();
                         }}
-                        className="w-full text-left px-4 py-2 hover:bg-purple-900/60 flex items-center gap-2.5"
+                        className="w-full text-left px-4 py-2 hover:bg-purple-900/60 flex items-center justify-between"
                       >
-                        <Database className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Care Database Logs {profRequestCount > 0 ? `(${profRequestCount})` : ''}</span>
+                        <div className="flex items-center gap-2.5">
+                          <Database className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Triage DB & OpenWA {profRequestCount > 0 ? `(${profRequestCount})` : ''}</span>
+                        </div>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
+                          :2785
+                        </span>
                       </button>
 
                       <button

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "owa-wa-1792159702839-sv4r",
+    "timestamp": "2026-10-16T14:08:22.839Z",
+    "channel": "whatsapp",
+    "recipient": "+15551234567",
+    "content": "Test message",
+    "status": "queued_docker_waiting",
+    "waLink": "https://wa.me/15551234567?text=Test%20message",
+    "meta": {
+      "isTest": true
+    }
+  }
+]

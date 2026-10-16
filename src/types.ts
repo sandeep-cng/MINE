@@ -117,3 +117,24 @@ export interface ProfessionalStats {
     status: string;
   }>;
 }
+
+export interface OpenWADispatchLog {
+  id: string;
+  timestamp: string;
+  channel: 'whatsapp' | 'gmail';
+  recipient: string;
+  subject?: string;
+  content: string;
+  status: 'delivered' | 'queued_docker_waiting' | 'simulated';
+  error?: string;
+  waLink?: string;
+}
+
+export interface OpenWAStatus {
+  online: boolean;
+  url: string;
+  port: number;
+  totalDispatched: number;
+  dockerCommand: string;
+  recentLogs: OpenWADispatchLog[];
+}

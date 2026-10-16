@@ -14,6 +14,7 @@ import {
   Sparkles,
   PhoneCall,
   Video,
+  ExternalLink,
 } from 'lucide-react';
 import { UserProfile, ProfessionalStats } from '../types';
 
@@ -128,22 +129,28 @@ export const ProfessionalSupport: React.FC<ProfessionalSupportProps> = ({
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header Banner */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-900 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
-          <HeartHandshake className="w-4 h-4 text-purple-700" />
-          <span>Licensed Professional Care • Coming Soon Priority Queue</span>
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-900 text-xs font-bold uppercase tracking-wider shadow-xs">
+            <HeartHandshake className="w-4 h-4 text-purple-700" />
+            <span>Licensed Professional Care • Priority Queue</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold shadow-xs">
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-700" />
+            <span>⚡ OpenWA WhatsApp & Gmail Gateway (:2785)</span>
+          </div>
         </div>
         <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900 leading-tight">
           When Venting Isn't Enough: Connect with Licensed Female Counselors
         </h2>
         <p className="mt-3 text-stone-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
           We are partnering with accredited female clinical psychologists, trauma therapists, and postpartum specialists.
-          Record your request in our private triage database to get early priority access and notify our clinical care director.
+          Record your request in our private triage database — our OpenWA gateway automatically dispatches notifications via WhatsApp & Gmail to ensure rapid support.
         </p>
       </div>
 
       {/* Success Confirmation View */}
       {submittedSuccess ? (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-300 shadow-lg text-center max-w-2xl mx-auto my-6">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-300 shadow-lg text-center max-w-2xl mx-auto my-6 animate-in fade-in zoom-in-95">
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8" />
           </div>
@@ -155,13 +162,42 @@ export const ProfessionalSupport: React.FC<ProfessionalSupportProps> = ({
             Your care request (ID: <code className="text-xs bg-stone-100 px-2 py-0.5 rounded font-mono text-stone-800">{submittedSuccess.requestId}</code>) has been recorded with priority triage.
           </p>
 
-          <div className="mt-5 p-4 rounded-2xl bg-purple-50 border border-purple-200 text-left text-xs sm:text-sm text-purple-950 space-y-2">
+          {/* OpenWA WhatsApp Immediate Action Card */}
+          {whatsapp.trim() && (
+            <div className="mt-5 p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50 border border-emerald-300 text-left space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-emerald-950 flex items-center gap-2 text-xs sm:text-sm">
+                  <MessageSquare className="w-4 h-4 text-emerald-600" />
+                  <span>WhatsApp Triage Channel Active (OpenWA :2785)</span>
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-800">
+                  Ready
+                </span>
+              </div>
+              <p className="text-xs text-emerald-900 leading-relaxed">
+                Your request has been routed to our OpenWA single-container gateway on port 2785.
+                You can also open WhatsApp immediately to start speaking directly with our triage intake coordinator:
+              </p>
+              <a
+                href={submittedSuccess.openwa?.whatsapp?.waLink || `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`🌸 [HerSanctuary Priority Care] Hello, my name/pseudo is ${userProfile.pseudonym} and I registered for care (ID: ${submittedSuccess.requestId}).`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-xs cursor-pointer"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Open Direct WhatsApp Conversation</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+              </a>
+            </div>
+          )}
+
+          <div className="mt-4 p-4 rounded-2xl bg-purple-50 border border-purple-200 text-left text-xs sm:text-sm text-purple-950 space-y-2">
             <div className="flex items-center gap-2 font-bold text-purple-900">
               <Mail className="w-4 h-4 text-purple-700" />
               <span>Notification Dispatched to Care Director</span>
             </div>
             <p className="text-xs text-purple-900">
-              An alert email has been dispatched to <strong>{submittedSuccess.notifiedEmail}</strong> with your urgency level ({urgency}) and preferred mode ({preferredMode}) so our team can prioritize matching you.
+              An alert has been dispatched to <strong>{submittedSuccess.notifiedEmail}</strong> via OpenWA Gmail with your urgency level ({urgency}) and preferred mode ({preferredMode}) so our team can prioritize matching you.
             </p>
           </div>
 

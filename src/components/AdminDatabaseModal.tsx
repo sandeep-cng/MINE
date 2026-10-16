@@ -12,8 +12,14 @@ import {
   UserCheck,
   Send,
   Eye,
+  MessageSquare,
+  Smartphone,
+  ExternalLink,
+  Copy,
+  Terminal,
+  Zap,
 } from 'lucide-react';
-import { ProfessionalStats } from '../types';
+import { ProfessionalStats, OpenWAStatus } from '../types';
 
 interface AdminDatabaseModalProps {
   isOpen: boolean;
@@ -26,26 +32,94 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
 }) => {
   const [stats, setStats] = useState<ProfessionalStats | null>(null);
   const [mvpStats, setMvpStats] = useState<any | null>(null);
+  const [openwaStatus, setOpenwaStatus] = useState<OpenWAStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [testSent, setTestSent] = useState(false);
-  const [activeTab, setActiveTab] = useState<'requests' | 'mvp' | 'emails'>('requests');
+  const [activeTab, setActiveTab] = useState<'requests' | 'mvp' | 'emails' | 'openwa'>('requests');
+
+  // OpenWA testing states
+  const [testWaPhone, setTestWaPhone] = useState('+1 (555) 234-5678');
+  const [testWaText, setTestWaText] = useState('🌸 [HerSanctuary] OpenWA live test message from port 2785. You are valued and safe here.');
+  const [waSending, setWaSending] = useState(false);
+  const [waResult, setWaResult] = useState<any | null>(null);
+
+  const [testEmailAddress, setTestEmailAddress] = useState('sonit.sandeep@gmail.com');
+  const [testEmailSubject, setTestEmailSubject] = useState('🌸 [HerSanctuary] OpenWA Gateway Test Alert');
+  const [testEmailBody, setTestEmailBody] = useState('This is a test notification confirming OpenWA Gmail API connectivity on port 2785.');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailResult, setEmailResult] = useState<any | null>(null);
+  const [copiedDocker, setCopiedDocker] = useState(false);
 
   const fetchStats = async () => {
     setIsLoading(true);
     try {
-      const [res1, res2] = await Promise.all([
+      const [res1, res2, res3] = await Promise.all([
         fetch('/api/professional-support/stats'),
         fetch('/api/mvp-interest/stats'),
+        fetch('/api/openwa/status'),
       ]);
       const data1 = await res1.json();
       const data2 = await res2.json();
+      const data3 = await res3.json();
       if (data1.success) setStats(data1);
       if (data2.success) setMvpStats(data2);
+      if (data3.success) setOpenwaStatus(data3);
     } catch (err) {
       console.error('Failed to load stats:', err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSendTestWhatsApp = async () => {
+    if (!testWaPhone.trim()) return;
+    setWaSending(true);
+    setWaResult(null);
+    try {
+      const res = await fetch('/api/openwa/test-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: testWaPhone, message: testWaText }),
+      });
+      const data = await res.json();
+      setWaResult(data);
+      fetchStats();
+    } catch (e: any) {
+      setWaResult({ error: e.message });
+    } finally {
+      setWaSending(false);
+    }
+  };
+
+  const handleSendTestGmail = async () => {
+    if (!testEmailAddress.trim()) return;
+    setEmailSending(true);
+    setEmailResult(null);
+    try {
+      const res = await fetch('/api/openwa/test-gmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: testEmailAddress,
+          subject: testEmailSubject,
+          body: testEmailBody,
+        }),
+      });
+      const data = await res.json();
+      setEmailResult(data);
+      fetchStats();
+    } catch (e: any) {
+      setEmailResult({ error: e.message });
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  const handleCopyDockerCmd = () => {
+    const cmd = `# Clone and start with Docker (single-container quick start)\ngit clone https://github.com/rmyndharis/OpenWA.git\ncd OpenWA\ndocker compose -f docker-compose.dev.yml up -d\n\n# Dashboard & API are bundled on one port:\n# http://localhost:2785 for whatsapp and gmail`;
+    navigator.clipboard.writeText(cmd);
+    setCopiedDocker(true);
+    setTimeout(() => setCopiedDocker(false), 2500);
   };
 
   useEffect(() => {
@@ -143,44 +217,53 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
           </div>
         </div>
 
-        {/* Top Summary Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
-          <div className="bg-purple-50 p-3.5 rounded-2xl border border-purple-200">
-            <span className="text-[11px] font-bold uppercase text-purple-800 block">Total In Queue</span>
-            <span className="text-2xl font-black text-purple-950 mt-1 block">
+        {/* Top Summary Metrics with OpenWA */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 my-4">
+          <div className="bg-purple-50 p-3 rounded-2xl border border-purple-200">
+            <span className="text-[10px] font-bold uppercase text-purple-800 block">Total In Queue</span>
+            <span className="text-xl font-black text-purple-950 mt-1 block">
               {stats?.totalCount || 0}
             </span>
           </div>
-          <div className="bg-amber-50 p-3.5 rounded-2xl border border-amber-200">
-            <span className="text-[11px] font-bold uppercase text-amber-800 block">Immediate Priority</span>
-            <span className="text-2xl font-black text-amber-950 mt-1 block">
+          <div className="bg-amber-50 p-3 rounded-2xl border border-amber-200">
+            <span className="text-[10px] font-bold uppercase text-amber-800 block">Immediate</span>
+            <span className="text-xl font-black text-amber-950 mt-1 block">
               {stats?.urgencyBreakdown?.['Immediate'] || 0}
             </span>
           </div>
-          <div className="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200">
-            <span className="text-[11px] font-bold uppercase text-emerald-800 block">Alerts Dispatched</span>
-            <span className="text-2xl font-black text-emerald-950 mt-1 block">
+          <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
+            <span className="text-[10px] font-bold uppercase text-emerald-800 block">Alerts Dispatched</span>
+            <span className="text-xl font-black text-emerald-950 mt-1 block">
               {stats?.notificationsSentCount || 0}
             </span>
           </div>
-          <div className="bg-stone-100 p-3.5 rounded-2xl border border-stone-200">
-            <span className="text-[11px] font-bold uppercase text-stone-700 block">Target Email</span>
-            <span className="text-xs font-mono text-stone-900 truncate block mt-1" title={stats?.targetNotificationEmail}>
+          <div className="bg-emerald-950/80 p-3 rounded-2xl border border-emerald-500/30 text-emerald-200">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 block">OpenWA :2785</span>
+              <span className={`w-2 h-2 rounded-full ${openwaStatus?.online ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+            </div>
+            <span className="text-xs font-bold text-white mt-1 block">
+              {openwaStatus?.online ? 'Online (Docker)' : 'Docker Ready'}
+            </span>
+          </div>
+          <div className="bg-stone-100 p-3 rounded-2xl border border-stone-200">
+            <span className="text-[10px] font-bold uppercase text-stone-700 block">Target Email</span>
+            <span className="text-[11px] font-mono text-stone-900 truncate block mt-1" title={stats?.targetNotificationEmail}>
               {stats?.targetNotificationEmail || 'sonit.sandeep@gmail.com'}
             </span>
           </div>
         </div>
 
         {/* Tabs & Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-          <div className="flex rounded-xl bg-purple-50 p-1 border border-purple-200">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3">
+          <div className="flex flex-wrap rounded-xl bg-purple-50 p-1 border border-purple-200 gap-1">
             <button
               onClick={() => setActiveTab('requests')}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
                 activeTab === 'requests' ? 'bg-white text-purple-950 shadow-2xs' : 'text-stone-600'
               }`}
             >
-              Logged Care Requests ({stats?.recentRequests?.length || 0})
+              Logged Care ({stats?.recentRequests?.length || 0})
             </button>
             <button
               onClick={() => setActiveTab('mvp')}
@@ -188,7 +271,7 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                 activeTab === 'mvp' ? 'bg-white text-purple-950 shadow-2xs' : 'text-stone-600'
               }`}
             >
-              MVP Feature Wishlist ({mvpStats?.totalCount || 0})
+              MVP Wishlist ({mvpStats?.totalCount || 0})
             </button>
             <button
               onClick={() => setActiveTab('emails')}
@@ -196,7 +279,21 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                 activeTab === 'emails' ? 'bg-white text-purple-950 shadow-2xs' : 'text-stone-600'
               }`}
             >
-              Email Notification Logs ({stats?.recentNotifications?.length || 0})
+              Email Logs ({stats?.recentNotifications?.length || 0})
+            </button>
+            <button
+              onClick={() => setActiveTab('openwa')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-1.5 ${
+                activeTab === 'openwa' ? 'bg-purple-900 text-white shadow-2xs' : 'text-stone-700 hover:text-purple-900'
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+              <span>OpenWA Gateway (:2785)</span>
+              {openwaStatus?.online ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              )}
             </button>
           </div>
 
@@ -346,7 +443,7 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                 </table>
               )}
             </div>
-          ) : (
+          ) : activeTab === 'emails' ? (
             <div className="p-4 space-y-3">
               {!stats?.recentNotifications || stats.recentNotifications.length === 0 ? (
                 <div className="py-8 text-center text-stone-400 text-xs">
@@ -376,6 +473,276 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                   </div>
                 ))
               )}
+            </div>
+          ) : (
+            /* OpenWA Gateway Tab (Docker: http://localhost:2785 for WhatsApp & Gmail) */
+            <div className="p-4 sm:p-6 space-y-6">
+              {/* Docker Quick Start Hero Card */}
+              <div className="rounded-2xl bg-stone-900 text-stone-100 p-4 sm:p-5 border border-stone-800 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-bold text-stone-200 uppercase tracking-wider">
+                      OpenWA Docker Container Quick Start
+                    </span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
+                      Port 2785
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopyDockerCmd}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium transition cursor-pointer"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-stone-300" />
+                      <span>{copiedDocker ? 'Copied!' : 'Copy Commands'}</span>
+                    </button>
+                    <a
+                      href="http://localhost:2785"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold transition"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>OpenWA Dashboard (:2785)</span>
+                    </a>
+                  </div>
+                </div>
+
+                <pre className="p-3.5 rounded-xl bg-black/60 font-mono text-xs text-emerald-400 overflow-x-auto leading-relaxed border border-stone-800">
+{`# Clone and start with Docker (single-container quick start)
+git clone https://github.com/rmyndharis/OpenWA.git
+cd OpenWA
+docker compose -f docker-compose.dev.yml up -d
+
+# Dashboard & API are bundled on one port:
+# http://localhost:2785 for whatsapp and gmail`}
+                </pre>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-400">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${openwaStatus?.online ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                    <span>
+                      Gateway Status:{' '}
+                      <strong className={openwaStatus?.online ? 'text-emerald-400' : 'text-amber-300'}>
+                        {openwaStatus?.online ? 'Connected to http://localhost:2785' : 'Waiting for Docker container on :2785 (Auto-fallback enabled)'}
+                      </strong>
+                    </span>
+                  </div>
+                  <span>Total OpenWA Dispatches: <strong className="text-white">{openwaStatus?.totalDispatched || 0}</strong></span>
+                </div>
+              </div>
+
+              {/* Interactive Dispatcher Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 1. WhatsApp Dispatcher */}
+                <div className="rounded-2xl p-4 bg-emerald-50/60 border border-emerald-200/80">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-stone-900 uppercase tracking-wide">
+                        Test WhatsApp via OpenWA
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-800 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">
+                      WhatsApp Web API
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                        Recipient Phone (with country code)
+                      </label>
+                      <input
+                        type="tel"
+                        value={testWaPhone}
+                        onChange={(e) => setTestWaPhone(e.target.value)}
+                        placeholder="+1 555-0199"
+                        className="w-full px-3 py-1.5 rounded-xl bg-white border border-emerald-300 text-xs focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                        Message Content
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={testWaText}
+                        onChange={(e) => setTestWaText(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-xl bg-white border border-emerald-300 text-xs focus:outline-hidden resize-none"
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleSendTestWhatsApp}
+                      disabled={waSending}
+                      className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{waSending ? 'Dispatching to OpenWA...' : 'Dispatch WhatsApp via OpenWA (:2785)'}</span>
+                    </button>
+
+                    {waResult && (
+                      <div className="p-3 rounded-xl bg-white border border-emerald-200 text-xs space-y-1.5 animate-in fade-in">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-emerald-900">
+                            {waResult.openwaOnline ? '✓ Sent to OpenWA Container' : 'Queued (Docker Offline)'}
+                          </span>
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                            {waResult.status}
+                          </span>
+                        </div>
+                        {waResult.waLink && (
+                          <div className="pt-1 border-t border-stone-100">
+                            <a
+                              href={waResult.waLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 text-emerald-700 font-semibold hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span>Open direct WhatsApp web chat (wa.me)</span>
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. Gmail Dispatcher */}
+                <div className="rounded-2xl p-4 bg-purple-50/60 border border-purple-200/80">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-purple-700 text-white flex items-center justify-center">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-stone-900 uppercase tracking-wide">
+                        Test Gmail via OpenWA
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-purple-800 font-semibold bg-purple-100 px-2 py-0.5 rounded-full">
+                      Gmail SMTP / API
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                        Recipient Email
+                      </label>
+                      <input
+                        type="email"
+                        value={testEmailAddress}
+                        onChange={(e) => setTestEmailAddress(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-xl bg-white border border-purple-300 text-xs focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                        Subject Line
+                      </label>
+                      <input
+                        type="text"
+                        value={testEmailSubject}
+                        onChange={(e) => setTestEmailSubject(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-xl bg-white border border-purple-300 text-xs focus:outline-hidden"
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleSendTestGmail}
+                      disabled={emailSending}
+                      className="w-full py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{emailSending ? 'Dispatching to OpenWA...' : 'Dispatch Gmail via OpenWA (:2785)'}</span>
+                    </button>
+
+                    {emailResult && (
+                      <div className="p-3 rounded-xl bg-white border border-purple-200 text-xs space-y-1.5 animate-in fade-in">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-purple-900">
+                            {emailResult.openwaOnline ? '✓ Sent to OpenWA Container' : 'Queued (Docker Standby)'}
+                          </span>
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">
+                            {emailResult.status}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* OpenWA Dispatch Logs Table */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-stone-500" />
+                    <span>OpenWA Live Dispatch Audit Log</span>
+                  </h4>
+                  <span className="text-[11px] text-stone-500 font-mono">
+                    Showing latest {openwaStatus?.recentLogs?.length || 0} events
+                  </span>
+                </div>
+
+                {!openwaStatus?.recentLogs || openwaStatus.recentLogs.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-stone-400 bg-stone-50 rounded-2xl border border-stone-200">
+                    No OpenWA dispatches yet. Use the test triggers above or submit a triage request with WhatsApp or Email!
+                  </div>
+                ) : (
+                  <div className="divide-y divide-stone-100 border border-stone-200 rounded-2xl overflow-hidden bg-white text-xs">
+                    {openwaStatus.recentLogs.map((log) => (
+                      <div key={log.id} className="p-3.5 hover:bg-stone-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                              log.channel === 'whatsapp'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : 'bg-purple-100 text-purple-800 border border-purple-200'
+                            }`}>
+                              {log.channel}
+                            </span>
+                            <span className="font-bold text-stone-900">{log.recipient}</span>
+                            <span className="text-[11px] text-stone-400 font-mono">
+                              {new Date(log.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                          <p className="text-stone-600 line-clamp-1">{log.content}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            log.status === 'delivered'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {log.status === 'delivered' ? 'Delivered via 2785' : 'Queued (Docker Standby)'}
+                          </span>
+                          {log.waLink && (
+                            <a
+                              href={log.waLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1 rounded bg-stone-100 hover:bg-emerald-50 text-stone-600 hover:text-emerald-700 transition"
+                              title="Open direct WhatsApp conversation"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

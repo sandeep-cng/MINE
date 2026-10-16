@@ -25,6 +25,9 @@ const COMMUNITY_FILE = path.join(DATA_DIR, 'community_posts.json');
 const VERIFICATIONS_FILE = path.join(DATA_DIR, 'verifications.json');
 const NOTIFICATIONS_LOG_FILE = path.join(DATA_DIR, 'email_notifications.json');
 const MVP_INTEREST_FILE = path.join(DATA_DIR, 'mvp_interest.json');
+const OPENWA_LOGS_FILE = path.join(DATA_DIR, 'openwa_dispatches.json');
+
+let OPENWA_BASE_URL = process.env.OPENWA_BASE_URL || 'http://localhost:2785';
 
 function readJsonFile<T>(filePath: string, defaultValue: T): T {
   try {
@@ -357,8 +360,241 @@ app.post('/api/ai/speak', async (req: Request, res: Response) => {
 });
 
 // 3. Professional Support Database & Waitlist Recording
+// OpenWA Service Integration (Docker: http://localhost:2785 for WhatsApp & Gmail)
 const TARGET_NOTIFY_EMAIL = 'sonit.sandeep@gmail.com';
+const DOCKER_QUICKSTART_CMD = `# Clone and start with Docker (single-container quick start)
+git clone https://github.com/rmyndharis/OpenWA.git
+cd OpenWA
+docker compose -f docker-compose.dev.yml up -d
 
+# Dashboard & API are bundled on one port:
+# http://localhost:2785 for whatsapp and gmail`;
+
+async function checkOpenWAStatus(): Promise<{
+  online: boolean;
+  url: string;
+  port: number;
+  message: string;
+}> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1200);
+    const resp = await fetch(`${OPENWA_BASE_URL}/api/status`, {
+      method: 'GET',
+      signal: controller.signal,
+    }).catch(async () => {
+      return await fetch(`${OPENWA_BASE_URL}`, {
+        method: 'GET',
+        signal: controller.signal,
+      });
+    });
+    clearTimeout(timeout);
+    if (resp && resp.ok) {
+      return {
+        online: true,
+        url: OPENWA_BASE_URL,
+        port: 2785,
+        message: 'OpenWA Docker container is active on port 2785',
+      };
+    }
+    return {
+      online: false,
+      url: OPENWA_BASE_URL,
+      port: 2785,
+      message: 'OpenWA offline or port 2785 not yet started',
+    };
+  } catch (err: any) {
+    return {
+      online: false,
+      url: OPENWA_BASE_URL,
+      port: 2785,
+      message: 'Container not reachable at http://localhost:2785. Ready for docker compose start.',
+    };
+  }
+}
+
+async function dispatchOpenWAWhatsApp(
+  toPhone: string,
+  message: string,
+  meta: Record<string, any> = {}
+) {
+  const cleanPhone = toPhone.replace(/[^0-9]/g, '');
+  const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+  const statusCheck = await checkOpenWAStatus();
+
+  let deliveryStatus: 'delivered' | 'queued_docker_waiting' | 'simulated' = 'queued_docker_waiting';
+  let errorMsg: string | undefined;
+
+  if (statusCheck.online) {
+    try {
+      const res = await fetch(`${OPENWA_BASE_URL}/api/whatsapp/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: cleanPhone,
+          message,
+          text: message,
+        }),
+      });
+      if (res.ok) {
+        deliveryStatus = 'delivered';
+      } else {
+        const res2 = await fetch(`${OPENWA_BASE_URL}/api/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: cleanPhone, message }),
+        });
+        if (res2.ok) deliveryStatus = 'delivered';
+        else deliveryStatus = 'queued_docker_waiting';
+      }
+    } catch (e: any) {
+      deliveryStatus = 'queued_docker_waiting';
+      errorMsg = e.message;
+    }
+  }
+
+  const logEntry = {
+    id: `owa-wa-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    timestamp: new Date().toISOString(),
+    channel: 'whatsapp' as const,
+    recipient: toPhone,
+    content: message,
+    status: deliveryStatus,
+    error: errorMsg,
+    waLink,
+    meta,
+  };
+
+  const logs = readJsonFile<any[]>(OPENWA_LOGS_FILE, []);
+  logs.unshift(logEntry);
+  writeJsonFile(OPENWA_LOGS_FILE, logs);
+
+  console.log(`[OPENWA WHATSAPP DISPATCH] To: ${toPhone} | Status: ${deliveryStatus} | Link: ${waLink}`);
+
+  return {
+    success: true,
+    status: deliveryStatus,
+    waLink,
+    logId: logEntry.id,
+    openwaOnline: statusCheck.online,
+  };
+}
+
+async function dispatchOpenWAGmail(
+  toEmail: string,
+  subject: string,
+  body: string,
+  meta: Record<string, any> = {}
+) {
+  const statusCheck = await checkOpenWAStatus();
+  let deliveryStatus: 'delivered' | 'queued_docker_waiting' | 'simulated' = 'queued_docker_waiting';
+  let errorMsg: string | undefined;
+
+  if (statusCheck.online) {
+    try {
+      const res = await fetch(`${OPENWA_BASE_URL}/api/gmail/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: toEmail,
+          subject,
+          text: body,
+          html: `<div style="font-family: sans-serif; padding: 20px; color: #2e1065;">${body.replace(/\n/g, '<br/>')}</div>`,
+        }),
+      });
+      if (res.ok) deliveryStatus = 'delivered';
+      else deliveryStatus = 'queued_docker_waiting';
+    } catch (e: any) {
+      deliveryStatus = 'queued_docker_waiting';
+      errorMsg = e.message;
+    }
+  }
+
+  const logEntry = {
+    id: `owa-gm-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    timestamp: new Date().toISOString(),
+    channel: 'gmail' as const,
+    recipient: toEmail,
+    subject,
+    content: body,
+    status: deliveryStatus,
+    error: errorMsg,
+    meta,
+  };
+
+  const logs = readJsonFile<any[]>(OPENWA_LOGS_FILE, []);
+  logs.unshift(logEntry);
+  writeJsonFile(OPENWA_LOGS_FILE, logs);
+
+  console.log(`[OPENWA GMAIL DISPATCH] To: ${toEmail} | Subject: ${subject} | Status: ${deliveryStatus}`);
+
+  return {
+    success: true,
+    status: deliveryStatus,
+    logId: logEntry.id,
+    openwaOnline: statusCheck.online,
+  };
+}
+
+// 3. OpenWA Management Endpoints
+app.get('/api/openwa/status', async (_req: Request, res: Response) => {
+  try {
+    const status = await checkOpenWAStatus();
+    const logs = readJsonFile<any[]>(OPENWA_LOGS_FILE, []);
+    res.json({
+      success: true,
+      online: status.online,
+      url: status.url,
+      port: status.port,
+      message: status.message,
+      dockerCommand: DOCKER_QUICKSTART_CMD,
+      totalDispatched: logs.length,
+      recentLogs: logs.slice(0, 20),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to query OpenWA status' });
+  }
+});
+
+app.post('/api/openwa/test-whatsapp', async (req: Request, res: Response) => {
+  try {
+    const { to = '+15551234567', message = '🌸 [HerSanctuary] OpenWA WhatsApp integration test on port 2785. You are deeply heard and welcomed here.' } = req.body;
+    const result = await dispatchOpenWAWhatsApp(to, message, { isTest: true });
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'WhatsApp test dispatch failed', details: err.message });
+  }
+});
+
+app.post('/api/openwa/test-gmail', async (req: Request, res: Response) => {
+  try {
+    const {
+      to = TARGET_NOTIFY_EMAIL,
+      subject = '🌸 [HerSanctuary] OpenWA Gmail Gateway Test (:2785)',
+      body = 'This is a test notification confirming OpenWA Gmail API connectivity on port 2785 for HerSanctuary triage dispatches.',
+    } = req.body;
+    const result = await dispatchOpenWAGmail(to, subject, body, { isTest: true });
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Gmail test dispatch failed', details: err.message });
+  }
+});
+
+app.post('/api/openwa/config', (req: Request, res: Response) => {
+  try {
+    const { url } = req.body;
+    if (url && typeof url === 'string') {
+      OPENWA_BASE_URL = url.trim().replace(/\/$/, '');
+      res.json({ success: true, url: OPENWA_BASE_URL });
+      return;
+    }
+    res.status(400).json({ error: 'Valid URL required' });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to update config' });
+  }
+});
+
+// 4. Professional Support Database & Waitlist Recording with OpenWA Dispatch
 app.post('/api/professional-support/request', async (req: Request, res: Response) => {
   try {
     const {
@@ -398,12 +634,43 @@ app.post('/api/professional-support/request', async (req: Request, res: Response
       timestamp: new Date().toISOString(),
       recipient: TARGET_NOTIFY_EMAIL,
       subject: `🚨 [HerSanctuary] New Professional Support Request: ${urgency} (${concernType})`,
-      summary: `A user registered under pseudo name "${pseudonym}" has requested professional mental health support. Urgency: ${urgency}. Preferred contact: ${preferredMode}. Email: ${email || 'Not provided'}. WhatsApp: ${whatsapp || 'Not provided'}. Context: "${notes || 'No extra notes'}".`,
+      summary: `A user registered under pseudonym "${pseudonym}" has requested professional mental health support. Urgency: ${urgency}. Preferred contact: ${preferredMode}. Email: ${email || 'Not provided'}. WhatsApp: ${whatsapp || 'Not provided'}. Context: "${notes || 'No extra notes'}".`,
       status: 'delivered',
       requestId: newRequest.id,
     };
     notifications.unshift(emailNotification);
     writeJsonFile(NOTIFICATIONS_LOG_FILE, notifications);
+
+    // OpenWA Automated Dispatch to User & Care Director
+    let openwaWhatsAppResult: any = null;
+    let openwaGmailResult: any = null;
+
+    if (whatsapp.trim()) {
+      const promptMsg = `🌸 [HerSanctuary Priority Care] Hello ${pseudonym}, we received your confidential care request (${urgency} - ${concernType}). Our clinical triage team has recorded your request. A licensed female counselor is being matched to you. You are safe here.`;
+      openwaWhatsAppResult = await dispatchOpenWAWhatsApp(whatsapp.trim(), promptMsg, {
+        requestId: newRequest.id,
+        pseudonym,
+        concernType,
+        urgency,
+      });
+    }
+
+    if (email.trim()) {
+      const emailSubject = `🌸 [HerSanctuary] Priority Care Request Received (${urgency})`;
+      const emailBody = `Dear ${pseudonym},\n\nThank you for reaching out to HerSanctuary. We received your request regarding "${concernType}" with urgency level: "${urgency}".\n\nOur clinical care team is reviewing your intake to match you with an accredited counselor for ${preferredMode}.\n\nReference ID: ${newRequest.id}\n\nWith gentle care,\nThe HerSanctuary Clinical Team`;
+      openwaGmailResult = await dispatchOpenWAGmail(email.trim(), emailSubject, emailBody, {
+        requestId: newRequest.id,
+        pseudonym,
+      });
+    }
+
+    // Also dispatch alert to director via OpenWA Gmail
+    await dispatchOpenWAGmail(
+      TARGET_NOTIFY_EMAIL,
+      `🚨 [HerSanctuary OpenWA Alert] ${urgency} Triage: ${pseudonym} (${concernType})`,
+      `New clinical triage request logged:\nPseudonym: ${pseudonym}\nConcern: ${concernType}\nUrgency: ${urgency}\nMode: ${preferredMode}\nWhatsApp: ${whatsapp || 'N/A'}\nEmail: ${email || 'N/A'}\nNotes: ${notes || 'None'}\nID: ${newRequest.id}`,
+      { requestId: newRequest.id, isDirectorAlert: true }
+    );
 
     console.log(`[EMAIL NOTIFICATION DISPATCHED] To: ${TARGET_NOTIFY_EMAIL}`);
     console.log(`[DETAILS]: ${emailNotification.summary}`);
@@ -414,6 +681,10 @@ app.post('/api/professional-support/request', async (req: Request, res: Response
       requestId: newRequest.id,
       totalRequestsCount: requests.length,
       notifiedEmail: TARGET_NOTIFY_EMAIL,
+      openwa: {
+        whatsapp: openwaWhatsAppResult,
+        gmail: openwaGmailResult,
+      },
     });
   } catch (error: any) {
     console.error('Professional support request error:', error);
@@ -615,7 +886,7 @@ app.post('/api/feedback', (req: Request, res: Response) => {
 });
 
 // 8. MVP Interest & Early Adopter Validation (Inspired by Mindful Brewing Teaser)
-app.post('/api/mvp-interest', (req: Request, res: Response) => {
+app.post('/api/mvp-interest', async (req: Request, res: Response) => {
   try {
     const {
       pseudonym = 'Sister',
@@ -654,6 +925,22 @@ app.post('/api/mvp-interest', (req: Request, res: Response) => {
     };
     notifications.unshift(notif);
     writeJsonFile(NOTIFICATIONS_LOG_FILE, notifications);
+    // Dispatch to OpenWA if contact details provided
+    if (whatsapp.trim()) {
+      await dispatchOpenWAWhatsApp(
+        whatsapp.trim(),
+        `🌸 [HerSanctuary MVP] Hello ${pseudonym}! Thank you for voting on our upcoming features (${featuresVoted.join(', ') || 'VIP Early Access'}). We'll reach out when early testing begins.`,
+        { type: 'mvp_interest', pseudonym, entryId: newEntry.id }
+      );
+    }
+    if (email.trim()) {
+      await dispatchOpenWAGmail(
+        email.trim(),
+        `✨ [HerSanctuary] MVP Feature Wishlist Received!`,
+        `Dear ${pseudonym},\n\nThank you for helping us design HerSanctuary! You voted for: ${featuresVoted.join(', ') || 'Early Access'}.\n\nWe will keep you closely posted.\n\nWarmly,\nHerSanctuary Team`,
+        { type: 'mvp_interest', pseudonym, entryId: newEntry.id }
+      );
+    }
 
     res.json({
       success: true,

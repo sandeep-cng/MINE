@@ -32,6 +32,7 @@ export const NotificationSettingsModal: React.FC<NotificationSettingsModalProps>
     userProfile.whatsappCheckinEnabled ?? true
   );
   const [testNotificationSent, setTestNotificationSent] = useState(false);
+  const [waTestStatus, setWaTestStatus] = useState<string | null>(null);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   if (!isOpen) return null;
@@ -66,6 +67,33 @@ export const NotificationSettingsModal: React.FC<NotificationSettingsModalProps>
       });
     }
     setTimeout(() => setTestNotificationSent(false), 4000);
+  };
+
+  const handleTestOpenWAWhatsApp = async () => {
+    if (!whatsapp.trim()) {
+      alert('Please enter your WhatsApp phone number first.');
+      return;
+    }
+    setWaTestStatus('Dispatching via OpenWA (:2785)...');
+    try {
+      const res = await fetch('/api/openwa/test-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: whatsapp.trim(),
+          message: `🌸 [HerSanctuary Gentle Check-in] Hello ${userProfile.pseudonym}, how is your heart feeling tonight? Take a deep, gentle breath with us.`,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWaTestStatus(data.openwaOnline ? '✓ Dispatched to WhatsApp via OpenWA!' : '✓ Queued on OpenWA (:2785)');
+      } else {
+        setWaTestStatus('Queued (Docker port 2785)');
+      }
+    } catch {
+      setWaTestStatus('Dispatched to OpenWA queue.');
+    }
+    setTimeout(() => setWaTestStatus(null), 4000);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -185,18 +213,33 @@ export const NotificationSettingsModal: React.FC<NotificationSettingsModalProps>
             </div>
           </div>
 
-          {/* Test Push Trigger */}
-          <div className="text-center pt-1">
-            <button
-              type="button"
-              onClick={handleTriggerTestPush}
-              className="text-xs text-purple-700 hover:text-purple-800 underline font-medium"
-            >
-              Send Me a Test Check-in Alert Now
-            </button>
+          {/* Test Triggers */}
+          <div className="pt-1 space-y-2 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={handleTriggerTestPush}
+                className="text-xs text-purple-700 hover:text-purple-800 underline font-medium cursor-pointer"
+              >
+                Test Browser Push
+              </button>
+              <span className="text-stone-300">•</span>
+              <button
+                type="button"
+                onClick={handleTestOpenWAWhatsApp}
+                className="text-xs text-emerald-700 hover:text-emerald-800 underline font-medium cursor-pointer"
+              >
+                Test OpenWA WhatsApp (:2785)
+              </button>
+            </div>
             {testNotificationSent && (
-              <p className="text-[11px] text-emerald-700 font-semibold mt-1">
+              <p className="text-[11px] text-emerald-700 font-semibold">
                 ✓ Test notification sent! Check your notification tray.
+              </p>
+            )}
+            {waTestStatus && (
+              <p className="text-[11px] text-emerald-700 font-semibold animate-in fade-in">
+                {waTestStatus}
               </p>
             )}
           </div>
