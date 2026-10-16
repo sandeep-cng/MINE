@@ -1,0 +1,9 @@
+{
+  "name": "HerSanctuary - Safe Women's Emotional Support & Sisterhood",
+  "description": "An anonymous, verified safe space for women to vent pain, receive compassionate AI empathetic listening, find peer community circles, and connect with professional support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

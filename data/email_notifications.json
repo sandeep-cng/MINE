@@ -1,0 +1,20 @@
+[
+  {
+    "id": "notif-mvp-1792157337145",
+    "timestamp": "2026-10-16T13:28:57.145Z",
+    "recipient": "sonit.sandeep@gmail.com",
+    "subject": "✨ [HerSanctuary MVP Validation] Interest Recorded from GentleSparrow!",
+    "summary": "User \"GentleSparrow\" voted on MVP features: Live Voice-to-Voice AI Listener, Daily WhatsApp Evening Check-in. Feedback: \"Would love gentle audio meditations before bed\". Contact: sister@example.com | +1 555-0199. Interest level: Very High - Need this now.",
+    "status": "delivered",
+    "requestId": "mvp-1792157337144-bq0h"
+  },
+  {
+    "id": "notif-1792140693224",
+    "timestamp": "2026-10-16T08:51:33.224Z",
+    "recipient": "sonit.sandeep@gmail.com",
+    "subject": "🚨 [HerSanctuary] New Professional Support Request: Within 24-48 hours (Postpartum Depression / Overwhelm)",
+    "summary": "A user registered under pseudo name \"GentleSparrow\" has requested professional mental health support. Urgency: Within 24-48 hours. Preferred contact: WhatsApp Chat & Voice. Email: sister@example.com. WhatsApp: +1 555-0199. Context: \"Need someone experienced with postpartum anxiety\".",
+    "status": "delivered",
+    "requestId": "req-1792140693223-ygiwz"
+  }
+]

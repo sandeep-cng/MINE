@@ -1,0 +1,15 @@
+[
+  {
+    "id": "req-1792140693223-ygiwz",
+    "timestamp": "2026-10-16T08:51:33.223Z",
+    "pseudonym": "GentleSparrow",
+    "email": "sister@example.com",
+    "whatsapp": "+1 555-0199",
+    "concernType": "Postpartum Depression / Overwhelm",
+    "urgency": "Within 24-48 hours",
+    "notes": "Need someone experienced with postpartum anxiety",
+    "preferredMode": "WhatsApp Chat & Voice",
+    "consentContact": true,
+    "status": "pending_triage"
+  }
+]
