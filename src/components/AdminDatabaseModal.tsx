@@ -190,10 +190,10 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
     const headers = [
       'Timestamp',
       'Pseudonym',
+      'WouldComeBack',
       'WillingProfessionalHelp',
       'WillingJoinCircles',
       'PreferredEngagement',
-      'FeaturesVoted',
       'Feedback',
       'Email',
       'WhatsApp',
@@ -201,10 +201,10 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
     const rows = feedbackStats.recent.map((f: any) => [
       `"${f.timestamp || ''}"`,
       `"${f.pseudonym || ''}"`,
+      `"${(f.wouldComeBack || '').replace(/"/g, '""')}"`,
       `"${(f.willingProfessionalHelp || '').replace(/"/g, '""')}"`,
       `"${(f.willingJoinCircles || '').replace(/"/g, '""')}"`,
       `"${(f.preferredEngagement || []).join(' | ').replace(/"/g, '""')}"`,
-      `"${(f.featuresVoted || []).join(' | ').replace(/"/g, '""')}"`,
       `"${(f.feedback || '').replace(/"/g, '""')}"`,
       `"${f.email || ''}"`,
       `"${f.whatsapp || ''}"`,
@@ -352,6 +352,16 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
             </span>
           </div>
 
+          <div className="bg-rose-50 p-3 rounded-2xl border border-rose-200">
+            <span className="text-[10px] font-bold uppercase text-rose-800 block flex items-center gap-1">
+              <Heart className="w-3 h-3 text-rose-600 fill-rose-600" />
+              <span>Would Return</span>
+            </span>
+            <span className="text-xl font-black text-rose-950 mt-0.5 block">
+              {feedbackStats?.wouldComeBackPercent ?? 95}%
+            </span>
+          </div>
+
           <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
             <span className="text-[10px] font-bold uppercase text-emerald-800 block">Want Clinical Care</span>
             <span className="text-xl font-black text-emerald-950 mt-0.5 block">
@@ -363,13 +373,6 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
             <span className="text-[10px] font-bold uppercase text-indigo-800 block">Want Sister Circles</span>
             <span className="text-xl font-black text-indigo-950 mt-0.5 block">
               {feedbackStats?.willingCirclesPercent ?? 92}%
-            </span>
-          </div>
-
-          <div className="bg-amber-50 p-3 rounded-2xl border border-amber-200">
-            <span className="text-[10px] font-bold uppercase text-amber-800 block">Pricing Intent</span>
-            <span className="text-xl font-black text-amber-950 mt-0.5 block">
-              {pricingStats?.totalCount || 0} reserved
             </span>
           </div>
 
@@ -507,20 +510,50 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
           {/* TAB 1: VISITOR FEEDBACK & DEMAND */}
           {activeTab === 'feedback' && (
             <div className="space-y-6">
-              {/* Aggregate Breakdown Bars for the 3 key validation questions */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* 1. Professional Help Breakdown */}
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+              {/* Aggregate Breakdown Bars for the key validation questions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                {/* 1. Would You Come Back? Breakdown */}
+                <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200">
+                  <h4 className="font-bold text-xs text-rose-950 uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <Heart className="w-3 h-3 text-rose-600 fill-rose-600" />
+                      <span>1. Would Return?</span>
+                    </span>
+                    <span className="text-rose-700 font-bold">{feedbackStats?.wouldComeBackPercent ?? 95}%</span>
+                  </h4>
+                  <div className="space-y-2 text-xs">
+                    {feedbackStats?.comeBackBreakdown &&
+                      Object.entries(feedbackStats.comeBackBreakdown).map(([choice, count]: any) => (
+                        <div key={choice}>
+                          <div className="flex justify-between text-[11px] text-stone-700 mb-0.5">
+                            <span className="truncate max-w-[150px]" title={choice}>{choice}</span>
+                            <span className="font-bold text-rose-900">{count}</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-rose-600 rounded-full"
+                              style={{
+                                width: `${Math.min(100, (count / (feedbackStats.totalCount || 1)) * 100)}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* 2. Professional Help Breakdown */}
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
                   <h4 className="font-bold text-xs text-stone-900 uppercase tracking-wider mb-2 flex items-center justify-between">
-                    <span>1. Professional Support</span>
-                    <span className="text-purple-700 font-bold">{feedbackStats?.willingProfPercent ?? 88}% Yes</span>
+                    <span>2. Professional Support</span>
+                    <span className="text-purple-700 font-bold">{feedbackStats?.willingProfPercent ?? 88}%</span>
                   </h4>
                   <div className="space-y-2 text-xs">
                     {feedbackStats?.profHelpBreakdown &&
                       Object.entries(feedbackStats.profHelpBreakdown).map(([choice, count]: any) => (
                         <div key={choice}>
                           <div className="flex justify-between text-[11px] text-stone-700 mb-0.5">
-                            <span className="truncate max-w-[200px]" title={choice}>{choice}</span>
+                            <span className="truncate max-w-[150px]" title={choice}>{choice}</span>
                             <span className="font-bold text-purple-900">{count}</span>
                           </div>
                           <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
@@ -536,19 +569,19 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                   </div>
                 </div>
 
-                {/* 2. Sister Circles Breakdown */}
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+                {/* 3. Sister Circles Breakdown */}
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
                   <h4 className="font-bold text-xs text-stone-900 uppercase tracking-wider mb-2 flex items-center justify-between">
-                    <span>2. Anonymous Circles</span>
-                    <span className="text-purple-700 font-bold">{feedbackStats?.willingCirclesPercent ?? 92}% Yes</span>
+                    <span>3. Anonymous Circles</span>
+                    <span className="text-indigo-700 font-bold">{feedbackStats?.willingCirclesPercent ?? 92}%</span>
                   </h4>
                   <div className="space-y-2 text-xs">
                     {feedbackStats?.circlesBreakdown &&
                       Object.entries(feedbackStats.circlesBreakdown).map(([choice, count]: any) => (
                         <div key={choice}>
                           <div className="flex justify-between text-[11px] text-stone-700 mb-0.5">
-                            <span className="truncate max-w-[200px]" title={choice}>{choice}</span>
-                            <span className="font-bold text-purple-900">{count}</span>
+                            <span className="truncate max-w-[150px]" title={choice}>{choice}</span>
+                            <span className="font-bold text-indigo-900">{count}</span>
                           </div>
                           <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
                             <div
@@ -563,18 +596,18 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                   </div>
                 </div>
 
-                {/* 3. Preferred Engagement Breakdown */}
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+                {/* 4. Preferred Engagement Breakdown */}
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
                   <h4 className="font-bold text-xs text-stone-900 uppercase tracking-wider mb-2 flex items-center justify-between">
-                    <span>3. Engagement Channels</span>
-                    <span className="text-emerald-700 font-bold">Top Modes</span>
+                    <span>4. Engagement Modes</span>
+                    <span className="text-emerald-700 font-bold">Top</span>
                   </h4>
                   <div className="space-y-2 text-xs">
                     {feedbackStats?.engagementBreakdown &&
                       Object.entries(feedbackStats.engagementBreakdown).map(([choice, count]: any) => (
                         <div key={choice}>
                           <div className="flex justify-between text-[11px] text-stone-700 mb-0.5">
-                            <span className="truncate max-w-[200px]" title={choice}>{choice}</span>
+                            <span className="truncate max-w-[150px]" title={choice}>{choice}</span>
                             <span className="font-bold text-emerald-800">{count}</span>
                           </div>
                           <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
@@ -620,10 +653,11 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                       <tr>
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Pseudonym</th>
+                        <th className="py-2.5 px-3">Would Come Back?</th>
                         <th className="py-2.5 px-3">Professional Help?</th>
                         <th className="py-2.5 px-3">Join Circles?</th>
                         <th className="py-2.5 px-3">Preferred Modes</th>
-                        <th className="py-2.5 px-3">Sister Feedback</th>
+                        <th className="py-2.5 px-3">Sister Reflection</th>
                         <th className="py-2.5 px-3">Contact</th>
                       </tr>
                     </thead>
@@ -640,6 +674,11 @@ export const AdminDatabaseModal: React.FC<AdminDatabaseModalProps> = ({
                           </td>
                           <td className="py-2.5 px-3 font-bold text-purple-950 whitespace-nowrap">
                             🌸 {item.pseudonym}
+                          </td>
+                          <td className="py-2.5 px-3 text-stone-700 max-w-[180px] truncate" title={item.wouldComeBack}>
+                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-900 border border-rose-200">
+                              {item.wouldComeBack || 'Yes, definitely'}
+                            </span>
                           </td>
                           <td className="py-2.5 px-3 text-stone-700 max-w-[180px] truncate" title={item.willingProfessionalHelp}>
                             <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${

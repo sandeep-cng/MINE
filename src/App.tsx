@@ -316,7 +316,7 @@ export default function App() {
                     onClick={() => setActiveTab('mvp')}
                     className="hover:text-purple-300 transition"
                   >
-                    Early Access & Feedback
+                    Would You Come Back?
                   </button>
                 </li>
                 <li>

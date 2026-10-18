@@ -105,8 +105,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-purple-300 hover:text-white hover:bg-purple-800/40'
               }`}
             >
-              <Vote className="w-3.5 h-3.5 text-purple-300" />
-              <span>Early Access & Feedback</span>
+              <Heart className="w-3.5 h-3.5 text-pink-300" />
+              <span>Would You Come Back?</span>
             </button>
           </nav>
 
@@ -284,7 +284,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 activeTab === 'mvp' ? 'bg-purple-700 text-white' : 'text-purple-200'
               }`}
             >
-              MVP Feature Wishlist
+              Would You Come Back?
             </button>
           </div>
         )}

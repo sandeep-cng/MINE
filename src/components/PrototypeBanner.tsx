@@ -66,20 +66,11 @@ export const PrototypeBanner: React.FC<PrototypeBannerProps> = ({
           <div className="flex flex-wrap items-center gap-2 text-xs w-full lg:w-auto justify-end">
             <button
               onClick={onOpenFeedback}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-900/70 hover:bg-purple-800 border border-purple-700/60 text-purple-200 transition text-[11px] font-semibold cursor-pointer"
-              title="Give Early Adopter Feedback"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-purple-900/80 hover:bg-purple-800 border border-purple-700/60 text-purple-200 transition text-[11px] font-semibold cursor-pointer"
+              title="Share whether you would come back to HerSanctuary"
             >
               <Heart className="w-3.5 h-3.5 text-pink-400" />
-              <span>Early Access Feedback</span>
-            </button>
-
-            <button
-              onClick={onOpenPricing}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-900/40 hover:bg-amber-800/60 border border-amber-600/50 text-amber-200 transition text-[11px] font-semibold cursor-pointer"
-              title="Test Willingness to Pay ($ / ₹)"
-            >
-              <CreditCard className="w-3.5 h-3.5 text-amber-400" />
-              <span>Test Pricing Tier</span>
+              <span>Would You Come Back?</span>
             </button>
 
             <button

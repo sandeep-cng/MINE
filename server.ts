@@ -1346,6 +1346,7 @@ const INITIAL_EARLY_FEEDBACK = [
     pseudonym: 'GentleSparrow',
     email: 'sister.care@example.com',
     whatsapp: '+1 555 432 1098',
+    wouldComeBack: 'Yes, definitely (Weekly or whenever overwhelmed)',
     willingProfessionalHelp: 'Yes, definitely (1-on-1 licensed therapist)',
     willingJoinCircles: 'Yes, definitely (Working women & mothers circles)',
     preferredEngagement: [
@@ -1354,7 +1355,7 @@ const INITIAL_EARLY_FEEDBACK = [
       'Weekly 1-on-1 emotional buddy check-in'
     ],
     featuresVoted: ['Daily WhatsApp Evening Check-in (8 PM)', 'Licensed Female Therapy Network'],
-    feedback: 'Having both an anonymous circle and an on-demand therapist without clinical stigma is exactly what I have been looking for.',
+    feedback: 'Having both an anonymous circle and an on-demand counselor without clinical stigma is exactly what I have been looking for.',
   },
   {
     id: 'fb-seed-2',
@@ -1362,13 +1363,14 @@ const INITIAL_EARLY_FEEDBACK = [
     pseudonym: 'CareerPhoenix',
     email: '',
     whatsapp: '+91 98765 43210',
+    wouldComeBack: 'Yes, whenever I need to vent without judgment',
     willingProfessionalHelp: 'Only during acute crisis or job transitions',
     willingJoinCircles: 'Yes, definitely (Working women & mothers circles)',
     preferredEngagement: [
       'On-demand venting whenever feelings get heavy',
       'Live weekend audio circles with sisters'
     ],
-    featuresVoted: ['Live Voice-to-Voice AI Listener', 'Weekly 15-Min Live Audio Circles'],
+    featuresVoted: ['Structured CBT Venting', 'Weekly 15-Min Live Audio Circles'],
     feedback: 'The working women circle for discussing unfair manager reviews and peer job referrals is gold.',
   },
   {
@@ -1377,6 +1379,7 @@ const INITIAL_EARLY_FEEDBACK = [
     pseudonym: 'QuietRiver',
     email: 'river.calm@example.com',
     whatsapp: '',
+    wouldComeBack: 'Yes, definitely (Weekly or whenever overwhelmed)',
     willingProfessionalHelp: 'Prefer free sister circles and self-guided exercises only',
     willingJoinCircles: 'Yes, definitely (Working women & mothers circles)',
     preferredEngagement: [
@@ -1398,6 +1401,7 @@ app.post('/api/early-adopter/feedback', async (req: Request, res: Response) => {
       pseudonym = 'Sister',
       email = '',
       whatsapp = '',
+      wouldComeBack = 'Yes, definitely (Weekly or whenever overwhelmed)',
       willingProfessionalHelp = '',
       willingJoinCircles = '',
       preferredEngagement = [],
@@ -1412,6 +1416,7 @@ app.post('/api/early-adopter/feedback', async (req: Request, res: Response) => {
       pseudonym,
       email: email.trim(),
       whatsapp: whatsapp.trim(),
+      wouldComeBack,
       willingProfessionalHelp,
       willingJoinCircles,
       preferredEngagement,
@@ -1476,11 +1481,15 @@ app.post('/api/early-adopter/feedback', async (req: Request, res: Response) => {
 app.get('/api/early-adopter/feedback/stats', (_req: Request, res: Response) => {
   try {
     const entries = readJsonFile<any[]>(EARLY_FEEDBACK_FILE, INITIAL_EARLY_FEEDBACK);
+    const comeBackBreakdown: Record<string, number> = {};
     const profHelpBreakdown: Record<string, number> = {};
     const circlesBreakdown: Record<string, number> = {};
     const engagementBreakdown: Record<string, number> = {};
 
     entries.forEach((e) => {
+      if (e.wouldComeBack) {
+        comeBackBreakdown[e.wouldComeBack] = (comeBackBreakdown[e.wouldComeBack] || 0) + 1;
+      }
       if (e.willingProfessionalHelp) {
         profHelpBreakdown[e.willingProfessionalHelp] = (profHelpBreakdown[e.willingProfessionalHelp] || 0) + 1;
       }
@@ -1491,6 +1500,10 @@ app.get('/api/early-adopter/feedback/stats', (_req: Request, res: Response) => {
         engagementBreakdown[mode] = (engagementBreakdown[mode] || 0) + 1;
       });
     });
+
+    const comeBackCount = entries.filter((e) =>
+      e.wouldComeBack && (e.wouldComeBack.includes('Yes') || e.wouldComeBack.includes('weekly') || e.wouldComeBack.includes('vent'))
+    ).length;
 
     const willingProfCount = entries.filter((e) =>
       e.willingProfessionalHelp && (e.willingProfessionalHelp.includes('Yes') || e.willingProfessionalHelp.includes('crisis'))
@@ -1503,8 +1516,10 @@ app.get('/api/early-adopter/feedback/stats', (_req: Request, res: Response) => {
     res.json({
       success: true,
       totalCount: entries.length,
+      wouldComeBackPercent: entries.length > 0 ? Math.round((comeBackCount / entries.length) * 100) : 95,
       willingProfPercent: entries.length > 0 ? Math.round((willingProfCount / entries.length) * 100) : 0,
       willingCirclesPercent: entries.length > 0 ? Math.round((willingCirclesCount / entries.length) * 100) : 0,
+      comeBackBreakdown,
       profHelpBreakdown,
       circlesBreakdown,
       engagementBreakdown,

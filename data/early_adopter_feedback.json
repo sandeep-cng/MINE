@@ -1,0 +1,48 @@
+[
+  {
+    "id": "fb-seed-1",
+    "timestamp": "2026-10-18T08:13:18.400Z",
+    "pseudonym": "GentleSparrow",
+    "email": "sister.care@example.com",
+    "whatsapp": "+1 555 432 1098",
+    "wouldComeBack": "Yes, definitely (I would return weekly or whenever overwhelmed)",
+    "willingProfessionalHelp": "Yes, definitely (1-on-1 licensed female therapist)",
+    "willingJoinCircles": "Yes, definitely (Working women, mothers, students, divorce circles)",
+    "preferredEngagement": [
+      "Daily 8 PM gentle WhatsApp breath & reflection",
+      "On-demand venting whenever feelings get heavy",
+      "Weekly 1-on-1 emotional buddy check-in"
+    ],
+    "feedback": "Having both an anonymous circle and an on-demand counselor without clinical stigma is exactly what I have been looking for."
+  },
+  {
+    "id": "fb-seed-2",
+    "timestamp": "2026-10-17T23:13:18.400Z",
+    "pseudonym": "CareerPhoenix",
+    "email": "",
+    "whatsapp": "+91 98765 43210",
+    "wouldComeBack": "Yes, whenever I need to vent with your assistant Ananya or do CBT calming",
+    "willingProfessionalHelp": "Only during acute crisis or major life transitions (heartbreak, divorce, postpartum)",
+    "willingJoinCircles": "Yes, definitely (Working women, mothers, students, divorce circles)",
+    "preferredEngagement": [
+      "On-demand venting whenever feelings get heavy",
+      "Weekly 15-minute camera-off voice circles"
+    ],
+    "feedback": "The working women circle for discussing unfair manager reviews and peer job referrals is gold."
+  },
+  {
+    "id": "fb-seed-3",
+    "timestamp": "2026-10-17T09:13:18.400Z",
+    "pseudonym": "QuietRiver",
+    "email": "river.calm@example.com",
+    "whatsapp": "",
+    "wouldComeBack": "Yes, definitely (I would return weekly or whenever overwhelmed)",
+    "willingProfessionalHelp": "Prefer free sister circles and self-guided CBT exercises only",
+    "willingJoinCircles": "Yes, definitely (Working women, mothers, students, divorce circles)",
+    "preferredEngagement": [
+      "On-demand venting whenever feelings get heavy",
+      "Daily 8 PM gentle WhatsApp breath & reflection"
+    ],
+    "feedback": "Anonymity is my highest priority. Knowing no real face is shared makes me actually want to return."
+  }
+]

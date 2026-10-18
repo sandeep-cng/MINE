@@ -8,6 +8,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Vote,
+  Heart,
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -160,21 +161,18 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
           </div>
         </div>
 
-        {/* Teaser MVP Interest Prompt Bar with Periwinkle & Lavender Velvet box */}
-        <div className="mt-8 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-indigo-950/90 via-purple-900/90 to-violet-950/95 border-2 border-indigo-400/50 shadow-lg flex flex-wrap items-center justify-between gap-4">
+        {/* Would You Come Back? Community Voice Prompt */}
+        <div className="mt-8 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-purple-900/80 via-violet-950 to-indigo-950/90 border border-purple-500/40 shadow-lg flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center text-purple-200 shrink-0">
-              <Vote className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-full bg-purple-700/80 flex items-center justify-center text-pink-300 shrink-0">
+              <Heart className="w-4 h-4 fill-pink-300/40" />
             </div>
             <div className="text-xs">
-              <p className="font-bold text-white flex items-center gap-1.5">
-                <span>Early Adopter Feedback & Feature Wishlist</span>
-                <span className="text-[10px] bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/40">
-                  PROTOTYPE PREVIEW
-                </span>
+              <p className="font-bold text-white flex items-center gap-1.5 text-sm">
+                <span>Would you come back to HerSanctuary?</span>
               </p>
               <p className="text-purple-300">
-                Tell us whether you would like professional counseling, peer sister circles, or daily evening check-ins.
+                Tell us whether you would return when life feels heavy, and what would give you the deepest emotional comfort.
               </p>
             </div>
           </div>
@@ -182,7 +180,7 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
             onClick={onOpenMVP}
             className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
-            <span>Share Feedback & Vote</span>
+            <span>Share Your Voice</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
