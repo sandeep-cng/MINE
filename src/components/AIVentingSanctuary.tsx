@@ -338,21 +338,68 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-900 text-xs font-semibold mb-3 shadow-xs">
           <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-          <span>Active Empathetic AI Listener Sanctuary</span>
+          <span>Structured CBT & Emotional Grounding Sanctuary</span>
         </div>
         <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
           Tell Me Everything. You Are Safe Here.
         </h2>
         <p className="mt-2 text-stone-600 text-sm sm:text-base max-w-xl mx-auto">
-          You are speaking as <span className="font-semibold text-purple-800">🌸 {userProfile.pseudonym}</span>.
-          No judgments, no dismissal, no toxic positivity. Just gentle, validating presence.
+          You are speaking anonymously as <span className="font-semibold text-purple-800">🌸 {userProfile.pseudonym}</span>.
+          Built on structured Cognitive Behavioral Therapy (CBT) exercises and somatic calming — not unstructured small-talk.
         </p>
+
+        {/* Structured CBT Exercise Quick Launcher */}
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl mx-auto text-left">
+          <button
+            onClick={() => {
+              setSelectedTopic('CBT Thought Record');
+              setVentText("I have this recurring automatic negative thought: 'I am failing at everything and everyone is judging me'. Can you help me examine the cognitive distortion and find a balanced reframe?");
+            }}
+            className="p-3 rounded-2xl bg-purple-50/80 hover:bg-purple-100 border border-purple-200 transition text-xs text-purple-950 cursor-pointer"
+          >
+            <span className="font-bold block text-purple-900 mb-0.5">🧠 CBT Thought Record</span>
+            <span className="text-[11px] text-stone-600">Catch distortions & reframe</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedTopic('5-4-3-2-1 Somatic Grounding');
+              setVentText("I'm feeling intense anxiety and sensory overwhelm right now. Can we do a step-by-step 5-4-3-2-1 somatic grounding exercise together?");
+            }}
+            className="p-3 rounded-2xl bg-emerald-50/80 hover:bg-emerald-100 border border-emerald-200 transition text-xs text-emerald-950 cursor-pointer"
+          >
+            <span className="font-bold block text-emerald-900 mb-0.5">🌿 5-4-3-2-1 Reset</span>
+            <span className="text-[11px] text-stone-600">Somatic panic de-escalation</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedTopic('De-catastrophizing');
+              setVentText("My mind is racing to the worst-case scenario. Help me de-catastrophize: what's the worst, what's the best, and what is the realistic probable outcome?");
+            }}
+            className="p-3 rounded-2xl bg-amber-50/80 hover:bg-amber-100 border border-amber-200 transition text-xs text-amber-950 cursor-pointer"
+          >
+            <span className="font-bold block text-amber-900 mb-0.5">⚖️ De-catastrophizing</span>
+            <span className="text-[11px] text-stone-600">Untangle worst-case spiral</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedTopic('Boundary Scripting');
+              setVentText("I need help scripting an assertive, guilt-free boundary with my manager / family member who is overstepping my emotional limits.");
+            }}
+            className="p-3 rounded-2xl bg-rose-50/80 hover:bg-rose-100 border border-rose-200 transition text-xs text-rose-950 cursor-pointer"
+          >
+            <span className="font-bold block text-rose-900 mb-0.5">🛡️ Boundary Scripting</span>
+            <span className="text-[11px] text-stone-600">Firm, respectful phrasing</span>
+          </button>
+        </div>
 
         {/* Breathing Guide Button */}
         <div className="mt-4 flex justify-center gap-3">
           <button
             onClick={() => setShowBreathingGuide(!showBreathingGuide)}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 transition"
+            className="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 transition cursor-pointer"
           >
             <Wind className="w-4 h-4 text-purple-600" />
             <span>{showBreathingGuide ? 'Hide Breathing Guide' : 'Need a Breath First? (4-4-4 Calming Orb)'}</span>

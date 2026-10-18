@@ -15,10 +15,15 @@ import {
   Calendar,
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { LOFAMatrix } from './LOFAMatrix';
 
 interface MVPValidationProps {
   userProfile: UserProfile;
   onUpdateProfile: (updates: Partial<UserProfile>) => void;
+  onOpenPricing: () => void;
+  onOpenVerification: () => void;
+  onStartVenting: () => void;
+  onExploreCommunity: () => void;
 }
 
 const MVP_FEATURE_OPTIONS = [
@@ -123,6 +128,10 @@ const MVP_FEATURE_OPTIONS = [
 export const MVPValidation: React.FC<MVPValidationProps> = ({
   userProfile,
   onUpdateProfile,
+  onOpenPricing,
+  onOpenVerification,
+  onStartVenting,
+  onExploreCommunity,
 }) => {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([
     'live_voice',
@@ -208,20 +217,29 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      {/* Editorial Teaser Header (Inspired by mindful-brewing) */}
-      <div className="text-center mb-10">
-        <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-purple-600 block mb-2">
-          EARLY ADOPTER VALIDATION
-        </span>
-        <h2 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
-          Help Us Shape the Minimum Viable Product
-        </h2>
-        <p className="mt-3 text-sm sm:text-base text-stone-600 max-w-2xl mx-auto leading-relaxed">
-          We are currently testing our initial prototype with a private circle of women.
-          Vote for the features you need most and tell us what would make this your safest healing sanctuary.
-        </p>
-      </div>
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-12">
+      {/* 1. Ranked Leap-of-Faith Assumptions Matrix */}
+      <LOFAMatrix
+        userProfile={userProfile}
+        onOpenPricing={onOpenPricing}
+        onOpenVerification={onOpenVerification}
+        onStartVenting={onStartVenting}
+        onExploreCommunity={onExploreCommunity}
+      />
+
+      {/* 2. Feature Wishlist & Early Adopter Priority Voting */}
+      <div>
+        <div className="text-center mb-8">
+          <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-purple-600 block mb-2">
+            EARLY ADOPTER FEATURE WISHLIST
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 leading-tight">
+            Help Us Shape the Upcoming Features
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm text-stone-600 max-w-xl mx-auto leading-relaxed">
+            Vote for the features you need most in our next release and shape HerSanctuary.
+          </p>
+        </div>
 
       {submitted ? (
         <div className="bg-white rounded-3xl p-8 border border-purple-200 shadow-xl text-center max-w-xl mx-auto">
@@ -428,6 +446,7 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

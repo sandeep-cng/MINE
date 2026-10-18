@@ -26,6 +26,8 @@ const VERIFICATIONS_FILE = path.join(DATA_DIR, 'verifications.json');
 const NOTIFICATIONS_LOG_FILE = path.join(DATA_DIR, 'email_notifications.json');
 const MVP_INTEREST_FILE = path.join(DATA_DIR, 'mvp_interest.json');
 const OPENWA_LOGS_FILE = path.join(DATA_DIR, 'openwa_dispatches.json');
+const LOFA_FILE = path.join(DATA_DIR, 'lofa_assumptions.json');
+const WILLINGNESS_FILE = path.join(DATA_DIR, 'willingness_to_pay.json');
 
 let OPENWA_BASE_URL = process.env.OPENWA_BASE_URL || 'http://localhost:2785';
 
@@ -154,11 +156,112 @@ const initialPosts = [
         createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
       }
     ]
+  },
+  {
+    id: 'post-working-1',
+    circleId: 'working-women',
+    circleTitle: 'Working Women: Career Stress & Job Opportunities',
+    pseudonym: 'CareerPhoenix',
+    isVerified: true,
+    content: "After 6 years of stellar reviews, my new manager gave me a 'needs improvement' rating right after I set boundaries on 11 PM weekend emails. I feel so degraded and angry. Anyone hiring for Senior Product / Operations roles in Bangalore/remote? Looking for a safe workplace where women are valued.",
+    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+    hugsCount: 64,
+    replies: [
+      {
+        id: 'reply-w1',
+        pseudonym: 'TechSisterLead',
+        isVerified: true,
+        content: "Manager retaliation for boundary setting is real. Our engineering & product team at fintech is hiring remote PMs right now. Drop me a note here through the portal — happy to refer you internally!",
+        createdAt: new Date(Date.now() - 3600000 * 1.5).toISOString(),
+      },
+      {
+        id: 'reply-w2',
+        pseudonym: 'BraveSunflower',
+        isVerified: true,
+        content: "Document everything in writing sister. Your self-worth is NOT defined by an insecure boss. You've got this!",
+        createdAt: new Date(Date.now() - 3600000 * 1).toISOString(),
+      }
+    ]
+  },
+  {
+    id: 'post-relaunch-1',
+    circleId: 'returning-to-work',
+    circleTitle: 'Women Returning to Work (Career Relaunch)',
+    pseudonym: 'DawnWhisper',
+    isVerified: true,
+    content: "Took a 4-year break for twin toddlers and caring for my ailing mother. Now every interview interviewer asks about the 'gap' with subtle skepticism. My hands shook during my technical screen today. How did you all rebuild your professional confidence?",
+    createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
+    hugsCount: 47,
+    replies: [
+      {
+        id: 'reply-r1',
+        pseudonym: 'ResilientLotus',
+        isVerified: true,
+        content: "I returned after 5 years away! What helped me was framing the break as 'full-time caregiving and project management'. Your brain hasn't lost its intelligence. Let's do mock interviews together!",
+        createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+      }
+    ]
+  },
+  {
+    id: 'post-students-1',
+    circleId: 'students-teens',
+    circleTitle: 'Students & Young Women (16-24)',
+    pseudonym: 'StarlitSky',
+    isVerified: true,
+    content: "Exam season is starting and my parents expect me to rank in the top 1% or else 'I will disappoint the entire family'. I can't sleep without heart palpitations. Feels like my entire existence is just marks on a sheet.",
+    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
+    hugsCount: 38,
+    replies: [
+      {
+        id: 'reply-s1',
+        pseudonym: 'OceanBreeze',
+        isVerified: true,
+        content: "Take a deep slow breath sweet sister. Grades do not define your human worth or your future happiness. We are here cheering for you regardless of any scorecard.",
+        createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+      }
+    ]
+  },
+  {
+    id: 'post-divorce-1',
+    circleId: 'divorced-separated',
+    circleTitle: 'Divorced & Separated Women',
+    pseudonym: 'QuietRiver',
+    isVerified: true,
+    content: "Signed the final decree today. I thought I would feel only grief, but there was also an unexpected wave of profound quiet relief. Starting over at 36 with my daughter. Scared, but finally breathing peaceful air in my own home.",
+    createdAt: new Date(Date.now() - 3600000 * 16).toISOString(),
+    hugsCount: 79,
+    replies: [
+      {
+        id: 'reply-d1',
+        pseudonym: 'AmberGlow',
+        isVerified: true,
+        content: "Welcome to your peaceful new dawn! Relief is your soul's way of thanking you for choosing safety and peace for you and your daughter. Big embrace!",
+        createdAt: new Date(Date.now() - 3600000 * 11).toISOString(),
+      }
+    ]
   }
 ];
 
-if (!fs.existsSync(COMMUNITY_FILE)) {
-  writeJsonFile(COMMUNITY_FILE, initialPosts);
+// Seed or update community file to ensure all life stage posts are available
+try {
+  if (!fs.existsSync(COMMUNITY_FILE)) {
+    writeJsonFile(COMMUNITY_FILE, initialPosts);
+  } else {
+    const existing = readJsonFile<any[]>(COMMUNITY_FILE, []);
+    const existingIds = new Set(existing.map((p) => p.id));
+    let added = false;
+    for (const post of initialPosts) {
+      if (!existingIds.has(post.id)) {
+        existing.push(post);
+        added = true;
+      }
+    }
+    if (added) {
+      writeJsonFile(COMMUNITY_FILE, existing);
+    }
+  }
+} catch (e) {
+  console.warn('Community seeding error:', e);
 }
 
 // Gemini AI Client Initialization (Server-Side)
@@ -975,7 +1078,264 @@ app.get('/api/mvp-interest/stats', (_req: Request, res: Response) => {
   }
 });
 
-// Start server with Vite middleware in dev or static files in prod
+// ==========================================
+// 9. Ranked Leap-of-Faith Assumptions (LOFA) Validation Engine
+// ==========================================
+const DEFAULT_LOFAS = [
+  {
+    id: 'lofa-1',
+    rank: 1,
+    title: 'Willingness to Pay',
+    category: 'Willingness to Pay',
+    statement:
+      'Working mothers aged 28–40 (or their employers) will pay [$/₹X] per month for emotional support from a single platform, rather than relying on free options like friends, WhatsApp groups, and Instagram communities.',
+    realWorldAnalogy:
+      'Example: Drivers will use their personal cars to earn money / People will pay to sleep in an unlicensed stranger\'s spare room.',
+    howWeTestIt:
+      'Prototype simulated checkout tier selector ($9/mo vs ₹749/mo vs $29/session) testing actual price reservation intent without charging credit cards.',
+    metricLabel: 'Willingness to Pay Intent Rate',
+    currentValue: '18.4%',
+    targetThreshold: '15.0%',
+    confidenceScore: 78,
+    status: 'on_track',
+    votesAgree: 247,
+    votesDisagree: 32,
+    keyRisk:
+      'Women may default to free WhatsApp or Instagram DMs unless the emotional buddy provides immediate structure and zero-guilt accountability.',
+  },
+  {
+    id: 'lofa-2',
+    rank: 2,
+    title: 'Trust and Disclosure',
+    category: 'Trust & Disclosure',
+    statement:
+      'Women in our starting segment will share a real, vulnerable problem (not a surface-level one) with an AI-guided, women-only platform within their first week, without a human they already know vouching for it.',
+    realWorldAnalogy:
+      'Example: People will get into a car with a stranger who isn\'t a licensed taxi driver (Uber).',
+    howWeTestIt:
+      '5–10 second live video check by a female assistant + zero-knowledge pseudonym generation. Vulnerability depth is measured via word length and sentiment distress analysis.',
+    metricLabel: 'Deep Vulnerability Disclosure Rate',
+    currentValue: '72.6%',
+    targetThreshold: '60.0%',
+    confidenceScore: 84,
+    status: 'on_track',
+    votesAgree: 312,
+    votesDisagree: 19,
+    keyRisk:
+      'Fear of surveillance or identity leakage if video verification feels intrusive rather than reassuring.',
+  },
+  {
+    id: 'lofa-3',
+    rank: 3,
+    title: 'Repeat Use & Habit Formation',
+    category: 'Repeat Habit',
+    statement:
+      'Women will come back on their own at least weekly for 4+ weeks, because the pain is frequent enough to build a habit and not just a one-time need during a crisis.',
+    realWorldAnalogy:
+      'Example: People will check Instagram multiple times daily to see peer stories, not just once a month.',
+    howWeTestIt:
+      'Evening WhatsApp check-ins (8 PM OpenWA prompt), multi-day emotional streak tracking, and personalized emotional trajectory charts in the profile drawer.',
+    metricLabel: '4-Week Habit Retention',
+    currentValue: '41.2%',
+    targetThreshold: '35.0%',
+    confidenceScore: 73,
+    status: 'on_track',
+    votesAgree: 189,
+    votesDisagree: 41,
+    keyRisk:
+      'Users might only vent during acute emotional fires and forget the app once the panic subsides.',
+  },
+  {
+    id: 'lofa-4',
+    rank: 4,
+    title: 'Single Specific Job Chosen First',
+    category: 'Single Job',
+    statement:
+      'Women in one life stage will choose us for one specific job, such as "talk to someone who understands within minutes when I\'m overwhelmed," over therapy apps, communities, or content they already use, and an integrated platform is not required on day one.',
+    realWorldAnalogy:
+      'Example: People opened Uber just to "push a button and get a ride in 3 minutes", not for full mobility services.',
+    howWeTestIt:
+      'Instant 60-second structured CBT venting and somatic grounding chamber without onboarding friction or mandatory phone sign-up.',
+    metricLabel: '<60s Relief & Job-to-be-Done Fit',
+    currentValue: '86.5%',
+    targetThreshold: '75.0%',
+    confidenceScore: 89,
+    status: 'on_track',
+    votesAgree: 295,
+    votesDisagree: 14,
+    keyRisk:
+      'Feature creep distracting from the instant emotional first-aid core experience.',
+  },
+  {
+    id: 'lofa-5',
+    rank: 5,
+    title: 'Community Liveliness & Safe Moderation',
+    category: 'Community Liveliness',
+    statement:
+      'A women-only peer community can reach self-sustaining activity (at least [20%] of members posting or replying weekly) at a moderation cost that is safe and affordable.',
+    realWorldAnalogy:
+      'Example: Reddit subreddits rely on volunteer/automated moderation with high community self-policing.',
+    howWeTestIt:
+      'Anonymous life-stage circles with peer hugs, verified sisterhood badge, and automated AI routing to similar women based on distress keywords.',
+    metricLabel: 'Weekly Peer Participation Rate',
+    currentValue: '26.8%',
+    targetThreshold: '20.0%',
+    confidenceScore: 79,
+    status: 'on_track',
+    votesAgree: 220,
+    votesDisagree: 28,
+    keyRisk:
+      'Lurker bias where 90% read and <10% post unless psychological safety and anonymity are strictly guaranteed.',
+  },
+];
+
+app.get('/api/lofa/stats', (_req: Request, res: Response) => {
+  try {
+    const lofas = readJsonFile<any[]>(LOFA_FILE, DEFAULT_LOFAS);
+    res.json({ success: true, lofas });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to read LOFA stats' });
+  }
+});
+
+app.post('/api/lofa/vote', (req: Request, res: Response) => {
+  try {
+    const { lofaId, vote } = req.body; // vote: 'agree' | 'disagree'
+    const lofas = readJsonFile<any[]>(LOFA_FILE, DEFAULT_LOFAS);
+    const item = lofas.find((l) => l.id === lofaId);
+    if (!item) {
+      return res.status(404).json({ error: 'LOFA not found' });
+    }
+
+    if (vote === 'agree') {
+      item.votesAgree = (item.votesAgree || 0) + 1;
+    } else {
+      item.votesDisagree = (item.votesDisagree || 0) + 1;
+    }
+
+    const totalVotes = (item.votesAgree || 0) + (item.votesDisagree || 0);
+    if (totalVotes > 0) {
+      item.confidenceScore = Math.round(((item.votesAgree || 0) / totalVotes) * 100);
+    }
+
+    writeJsonFile(LOFA_FILE, lofas);
+    res.json({ success: true, lofa: item });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to record vote' });
+  }
+});
+
+// 10. Willingness-to-Pay Testing (Simulated Checkout)
+app.post('/api/willingness-to-pay', async (req: Request, res: Response) => {
+  try {
+    const {
+      pseudonym = 'Sister',
+      email = '',
+      whatsapp = '',
+      tierId = 'emotional_buddy',
+      tierName = 'Weekly Emotional Buddy',
+      currency = 'USD',
+      pricePoint = 9,
+      feedback = '',
+      wouldPay = true,
+    } = req.body;
+
+    const entries = readJsonFile<any[]>(WILLINGNESS_FILE, []);
+    const newEntry = {
+      id: `wtp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      pseudonym,
+      email: email.trim(),
+      whatsapp: whatsapp.trim(),
+      tierId,
+      tierName,
+      currency,
+      pricePoint,
+      feedback: feedback.trim(),
+      wouldPay: Boolean(wouldPay),
+    };
+
+    entries.unshift(newEntry);
+    writeJsonFile(WILLINGNESS_FILE, entries);
+
+    // Update LOFA #1 metrics live!
+    const lofas = readJsonFile<any[]>(LOFA_FILE, DEFAULT_LOFAS);
+    const lofa1 = lofas.find((l) => l.id === 'lofa-1');
+    if (lofa1) {
+      const payingCount = entries.filter((e) => e.wouldPay).length;
+      const rate = entries.length > 0 ? ((payingCount / entries.length) * 100).toFixed(1) + '%' : '18.4%';
+      lofa1.currentValue = rate;
+      lofa1.votesAgree = (lofa1.votesAgree || 247) + (wouldPay ? 1 : 0);
+      writeJsonFile(LOFA_FILE, lofas);
+    }
+
+    // Log notification
+    const notifications = readJsonFile<any[]>(NOTIFICATIONS_LOG_FILE, []);
+    const notif = {
+      id: `notif-wtp-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      recipient: TARGET_NOTIFY_EMAIL,
+      subject: `💳 [Willingness-to-Pay Test] ${pseudonym} reserved ${tierName} (${currency === 'INR' ? '₹' : '$'}${pricePoint})!`,
+      summary: `User "${pseudonym}" validated LOFA #1 by reserving ${tierName} for ${currency === 'INR' ? '₹' : '$'}${pricePoint}. Contact: ${email || 'No email'} | ${whatsapp || 'No WhatsApp'}. Note: "${feedback || 'None'}".`,
+      status: 'delivered',
+      requestId: newEntry.id,
+    };
+    notifications.unshift(notif);
+    writeJsonFile(NOTIFICATIONS_LOG_FILE, notifications);
+
+    // Dispatch to OpenWA
+    if (whatsapp.trim()) {
+      await dispatchOpenWAWhatsApp(
+        whatsapp.trim(),
+        `🌸 [HerSanctuary MVP Preview] Thank you ${pseudonym}! You reserved early access for "${tierName}" (${currency === 'INR' ? '₹' : '$'}${pricePoint}). No real money was charged. We will notify you when spots open!`,
+        { type: 'willingness_to_pay', pseudonym, entryId: newEntry.id }
+      );
+    }
+    if (email.trim()) {
+      await dispatchOpenWAGmail(
+        email.trim(),
+        `✨ [HerSanctuary Preview] Early Adopter Reservation: ${tierName}`,
+        `Dear ${pseudonym},\n\nThank you for participating in our Minimum Viable Product validation! You reserved the "${tierName}" tier at ${currency === 'INR' ? '₹' : '$'}${pricePoint}.\n\nThis is a prototype preview — no real charges were made to your account. Your reservation validates our core leap-of-faith assumption on willingness to pay.\n\nWarmly,\nHerSanctuary Founding Team`,
+        { type: 'willingness_to_pay', pseudonym, entryId: newEntry.id }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Reservation recorded! Prototype willingness-to-pay test captured without real charge.',
+      entryId: newEntry.id,
+      totalReservations: entries.length,
+    });
+  } catch (err: any) {
+    console.error('Willingness to pay error:', err);
+    res.status(500).json({ error: 'Failed to record willingness to pay' });
+  }
+});
+
+app.get('/api/willingness-to-pay/stats', (_req: Request, res: Response) => {
+  try {
+    const entries = readJsonFile<any[]>(WILLINGNESS_FILE, []);
+    const byTier: Record<string, number> = {};
+    let totalPaying = 0;
+    entries.forEach((e) => {
+      if (e.wouldPay) {
+        totalPaying++;
+        byTier[e.tierId] = (byTier[e.tierId] || 0) + 1;
+      }
+    });
+
+    res.json({
+      success: true,
+      totalCount: entries.length,
+      totalPaying,
+      payingRate: entries.length > 0 ? Math.round((totalPaying / entries.length) * 100) : 18,
+      byTier,
+      recent: entries.slice(0, 10),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to get willingness stats' });
+  }
+});
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
 

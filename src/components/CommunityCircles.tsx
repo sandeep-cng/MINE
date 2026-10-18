@@ -13,9 +13,12 @@ import {
   Send,
   Sparkles,
   CheckCircle2,
+  Briefcase,
+  BookOpen,
+  HeartHandshake,
 } from 'lucide-react';
 import { CommunityPost, UserProfile } from '../types';
-import { COMMUNITY_CIRCLES } from '../data/circlesData';
+import { COMMUNITY_CIRCLES, LIFE_STAGE_CATEGORIES } from '../data/circlesData';
 
 interface CommunityCirclesProps {
   userProfile: UserProfile;
@@ -146,24 +149,44 @@ export const CommunityCircles: React.FC<CommunityCirclesProps> = ({
     }
   };
 
+  const [lifeStageFilter, setLifeStageFilter] = useState<string>('all');
+
   const activeCircleObj = COMMUNITY_CIRCLES.find((c) => c.id === selectedCircleId);
 
   const getCircleIcon = (iconName: string) => {
     switch (iconName) {
+      case 'Briefcase':
+        return <Briefcase className="w-4 h-4 text-emerald-600" />;
+      case 'BookOpen':
+        return <BookOpen className="w-4 h-4 text-sky-600" />;
+      case 'HeartHandshake':
+        return <HeartHandshake className="w-4 h-4 text-violet-600" />;
+      case 'Sparkles':
+        return <Sparkles className="w-4 h-4 text-teal-600" />;
       case 'Baby':
-        return <Baby className="w-4 h-4 text-purple-500" />;
+        return <Baby className="w-4 h-4 text-rose-500" />;
       case 'HeartCrack':
-        return <HeartCrack className="w-4 h-4 text-violet-500" />;
+        return <HeartCrack className="w-4 h-4 text-fuchsia-500" />;
       case 'Flame':
-        return <Flame className="w-4 h-4 text-amber-500" />;
+        return <Flame className="w-4 h-4 text-orange-500" />;
       case 'Feather':
         return <Feather className="w-4 h-4 text-indigo-500" />;
       case 'Compass':
-        return <Compass className="w-4 h-4 text-emerald-500" />;
+        return <Compass className="w-4 h-4 text-amber-500" />;
       default:
         return <Users className="w-4 h-4 text-purple-500" />;
     }
   };
+
+  const filteredCircles = COMMUNITY_CIRCLES.filter((c) => {
+    if (lifeStageFilter === 'working') return c.id === 'working-women' || c.id === 'returning-to-work' || c.id === 'burnout';
+    if (lifeStageFilter === 'mothers') return c.id === 'postpartum' || c.id === 'family-pressure';
+    if (lifeStageFilter === 'students') return c.id === 'students-teens';
+    if (lifeStageFilter === 'divorce') return c.id === 'divorced-separated' || c.id === 'heartbreak';
+    if (lifeStageFilter === 'single') return c.id === 'single-women' || c.id === 'loneliness';
+    if (lifeStageFilter === 'healing') return c.id === 'heartbreak' || c.id === 'grief' || c.id === 'burnout';
+    return true;
+  });
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -171,17 +194,48 @@ export const CommunityCircles: React.FC<CommunityCirclesProps> = ({
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-900 text-xs font-semibold mb-3 shadow-xs">
           <Users className="w-3.5 h-3.5 text-purple-600" />
-          <span>Vetted Safe Sisterhood Circles</span>
+          <span>Vetted Safe Sisterhood Circles Across All Life Stages</span>
         </div>
         <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
           Walk with Women Who Understand Your Exact Situation
         </h2>
-        <p className="mt-2 text-stone-600 text-sm sm:text-base max-w-xl mx-auto">
-          Share reflections anonymously, leave virtual hugs, and know you are never solitary in your sorrow.
+        <p className="mt-2 text-stone-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+          From working professionals managing corporate burnout and job changes, to mothers, students, single women, and sisters rebuilding after divorce. Anonymous, peer-led, and verified.
         </p>
+
+        {/* Life Stage Categories Bar */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-1.5 text-xs">
+          {LIFE_STAGE_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                setLifeStageFilter(cat.id);
+                if (cat.id !== 'all' && selectedCircleId === 'all') {
+                  const firstMatch = COMMUNITY_CIRCLES.find((c) => {
+                    if (cat.id === 'working') return c.id === 'working-women';
+                    if (cat.id === 'mothers') return c.id === 'postpartum';
+                    if (cat.id === 'students') return c.id === 'students-teens';
+                    if (cat.id === 'divorce') return c.id === 'divorced-separated';
+                    if (cat.id === 'single') return c.id === 'single-women';
+                    if (cat.id === 'healing') return c.id === 'heartbreak';
+                    return false;
+                  });
+                  if (firstMatch) setSelectedCircleId(firstMatch.id);
+                }
+              }}
+              className={`px-3 py-1.5 rounded-full font-semibold transition cursor-pointer ${
+                lifeStageFilter === cat.id
+                  ? 'bg-purple-700 text-white shadow-xs'
+                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Sister Circles Aesthetic Boxes Grid (6 distinct jewel/pastel palettes) */}
+      {/* Sister Circles Aesthetic Boxes Grid */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-bold text-stone-800 uppercase tracking-wider">
@@ -192,13 +246,13 @@ export const CommunityCircles: React.FC<CommunityCirclesProps> = ({
               onClick={() => setSelectedCircleId('all')}
               className="text-xs text-purple-700 hover:text-purple-900 font-semibold underline cursor-pointer"
             >
-              Show All Circles
+              Show All Circles ({filteredCircles.length})
             </button>
           )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {COMMUNITY_CIRCLES.map((c) => {
+          {filteredCircles.map((c) => {
             const isSelected = selectedCircleId === c.id;
             return (
               <div

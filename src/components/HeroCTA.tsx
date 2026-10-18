@@ -167,9 +167,14 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
               <Vote className="w-4 h-4" />
             </div>
             <div className="text-xs">
-              <p className="font-bold text-white">Help Us Shape the Minimum Viable Product (MVP)</p>
+              <p className="font-bold text-white flex items-center gap-1.5">
+                <span>Ranked Leap-of-Faith Assumptions & MVP Testing</span>
+                <span className="text-[10px] bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/40">
+                  PROTOTYPE PREVIEW
+                </span>
+              </p>
               <p className="text-purple-300">
-                Vote on upcoming features and record your feedback so we build what you actually need.
+                Explore our 5 ranked venture hypotheses (Willingness-to-pay, Trust, Repeat Habit) & vote on feature backlog.
               </p>
             </div>
           </div>
@@ -177,7 +182,7 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
             onClick={onOpenMVP}
             className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
-            <span>Vote on MVP Features</span>
+            <span>Explore LOFA & Vote</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

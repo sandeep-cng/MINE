@@ -106,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Vote className="w-3.5 h-3.5 text-purple-300" />
-              <span>MVP Wishlist</span>
+              <span>LOFA & MVP Testing</span>
             </button>
           </nav>
 

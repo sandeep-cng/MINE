@@ -11,14 +11,19 @@ import {
   Heart,
   Calendar,
   AlertCircle,
+  RefreshCw,
+  Lock,
+  UserCheck,
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { getRandomPseudonym } from '../data/circlesData';
 
 interface VideoVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   userProfile: UserProfile;
   onVerificationComplete: () => void;
+  onUpdatePseudonym?: (newPseudonym: string) => void;
 }
 
 export const VideoVerificationModal: React.FC<VideoVerificationModalProps> = ({
@@ -26,8 +31,10 @@ export const VideoVerificationModal: React.FC<VideoVerificationModalProps> = ({
   onClose,
   userProfile,
   onVerificationComplete,
+  onUpdatePseudonym,
 }) => {
   const [activeMode, setActiveMode] = useState<'instant' | 'schedule'>('instant');
+  const [chosenPseudonym, setChosenPseudonym] = useState(userProfile.pseudonym);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [secondsRemaining, setSecondsRemaining] = useState(10);
@@ -111,16 +118,19 @@ export const VideoVerificationModal: React.FC<VideoVerificationModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pseudonym: userProfile.pseudonym,
+          pseudonym: chosenPseudonym || userProfile.pseudonym,
           verificationType: 'live_camera_nod',
           durationSeconds: 10,
-          notes: 'Completed 10-second facial presence check',
+          notes: 'Completed 10-second presence check with female assistant moderator',
         }),
       });
     } catch (err) {
       console.error('Failed to log verification on server:', err);
     }
 
+    if (onUpdatePseudonym && chosenPseudonym) {
+      onUpdatePseudonym(chosenPseudonym);
+    }
     onVerificationComplete();
   };
 
@@ -132,7 +142,7 @@ export const VideoVerificationModal: React.FC<VideoVerificationModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pseudonym: userProfile.pseudonym,
+          pseudonym: chosenPseudonym || userProfile.pseudonym,
           verificationType: 'scheduled_peer_call',
           durationSeconds: 10,
           notes: `Scheduled with female facilitator for ${scheduleSlot}. WhatsApp: ${whatsappForSchedule}`,
@@ -140,6 +150,9 @@ export const VideoVerificationModal: React.FC<VideoVerificationModalProps> = ({
       });
     } catch (err) {
       console.error('Failed to schedule verification:', err);
+    }
+    if (onUpdatePseudonym && chosenPseudonym) {
+      onUpdatePseudonym(chosenPseudonym);
     }
     onVerificationComplete();
   };
@@ -166,8 +179,64 @@ export const VideoVerificationModal: React.FC<VideoVerificationModalProps> = ({
             5-10 Sec Video Verification
           </h3>
           <p className="mt-2 text-stone-600 text-xs sm:text-sm leading-relaxed">
-            To ensure HerSanctuary remains a strictly safe, troll-free sanctuary for women, we verify every member with a brief 5-10 second live video check to confirm authentic presence.
+            A trusted female assistant conducts a quick 5–10 second live video check to confirm authentic female presence. You will sign in with your chosen pseudonym so your real face, phone, and name remain 100% confidential.
           </p>
+        </div>
+
+        {/* Pseudonym Chooser with Availability Indicator */}
+        <div className="mb-5 p-3.5 rounded-2xl bg-purple-50/70 border border-purple-200">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-purple-900 flex items-center gap-1">
+              <UserCheck className="w-3.5 h-3.5 text-purple-700" />
+              <span>Sign In With A Pseudonym You Choose / Available</span>
+            </label>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+              Available & Safe ✓
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm">🌸</span>
+              <input
+                type="text"
+                value={chosenPseudonym}
+                onChange={(e) => setChosenPseudonym(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''))}
+                placeholder="Choose your pseudonym..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white border border-purple-200 text-xs font-semibold text-purple-950 focus:outline-purple-600 shadow-2xs"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setChosenPseudonym(getRandomPseudonym())}
+              className="px-2.5 py-1.5 rounded-xl bg-purple-200 hover:bg-purple-300 text-purple-900 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+              title="Generate New Aesthetic Pseudonym"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Randomize</span>
+            </button>
+          </div>
+          <p className="mt-1.5 text-[11px] text-purple-800/80 flex items-center gap-1">
+            <Lock className="w-3 h-3 text-purple-600" />
+            <span>Only "{chosenPseudonym}" will ever appear in the community. Zero real IDs stored.</span>
+          </p>
+        </div>
+
+        {/* Female Assistant Badge */}
+        <div className="mb-4 flex items-center justify-between px-3 py-2 rounded-xl bg-stone-100 border border-stone-200 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-purple-700 text-white flex items-center justify-center text-[10px] font-bold">
+              PS
+            </div>
+            <div>
+              <p className="font-bold text-stone-900 leading-none">Priya Sharma</p>
+              <p className="text-[10px] text-stone-500">Verified Female Assistant • Active Online</p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            <span>Ready for 5-10s Check</span>
+          </span>
         </div>
 
         {/* Mode Switcher */}

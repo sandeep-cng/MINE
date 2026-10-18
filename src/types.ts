@@ -138,3 +138,35 @@ export interface OpenWAStatus {
   dockerCommand: string;
   recentLogs: OpenWADispatchLog[];
 }
+
+export interface LeapOfFaithAssumption {
+  id: string;
+  rank: number;
+  title: string;
+  category: 'Willingness to Pay' | 'Trust & Disclosure' | 'Repeat Habit' | 'Single Job' | 'Community Liveliness';
+  statement: string;
+  realWorldAnalogy: string; // e.g. Uber / Airbnb examples
+  howWeTestIt: string;
+  metricLabel: string;
+  currentValue: string | number;
+  targetThreshold: string | number;
+  confidenceScore: number; // 0 - 100%
+  status: 'validating' | 'on_track' | 'needs_attention';
+  votesAgree: number;
+  votesDisagree: number;
+  keyRisk: string;
+}
+
+export interface WillingnessToPayEntry {
+  id: string;
+  timestamp: string;
+  pseudonym: string;
+  email?: string;
+  whatsapp?: string;
+  tierId: 'free' | 'emotional_buddy' | 'licensed_therapy';
+  tierName: string;
+  currency: 'USD' | 'INR';
+  pricePoint: number;
+  feedback?: string;
+  wouldPay: boolean;
+}

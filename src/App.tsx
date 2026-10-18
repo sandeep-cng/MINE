@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PrototypeBanner } from './components/PrototypeBanner';
 import { Navbar } from './components/Navbar';
 import { HeroCTA } from './components/HeroCTA';
 import { AIVentingSanctuary } from './components/AIVentingSanctuary';
@@ -6,6 +7,7 @@ import { CommunityCircles } from './components/CommunityCircles';
 import { ProfessionalSupport } from './components/ProfessionalSupport';
 import { MVPValidation } from './components/MVPValidation';
 import { VideoVerificationModal } from './components/VideoVerificationModal';
+import { PaidBuddyPricingModal } from './components/PaidBuddyPricingModal';
 import { NotificationSettingsModal } from './components/NotificationSettingsModal';
 import { ProfileDrawer } from './components/ProfileDrawer';
 import { AdminDatabaseModal } from './components/AdminDatabaseModal';
@@ -20,6 +22,8 @@ import {
   Lock,
   Phone,
   Video,
+  CreditCard,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function App() {
@@ -58,6 +62,7 @@ export default function App() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isAdminStatsOpen, setIsAdminStatsOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isPricingOpen, setIsPricingOpen] = useState(false);
 
   // Real-time professional requests counter
   const [profRequestCount, setProfRequestCount] = useState(0);
@@ -134,6 +139,17 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col font-sans selection:bg-purple-200 selection:text-purple-950">
+      {/* Top Prototype Preview Clarity Banner (Matches flavor-bridge-prototype.lovable.app standard) */}
+      <PrototypeBanner
+        onOpenLOFA={() => {
+          setActiveTab('mvp');
+          window.scrollTo({ top: 300, behavior: 'smooth' });
+        }}
+        onOpenVerification={() => setIsVerificationOpen(true)}
+        onOpenPricing={() => setIsPricingOpen(true)}
+        userProfile={userProfile}
+      />
+
       {/* Top Header Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -202,6 +218,16 @@ export default function App() {
           <MVPValidation
             userProfile={userProfile}
             onUpdateProfile={handleUpdateProfile}
+            onOpenPricing={() => setIsPricingOpen(true)}
+            onOpenVerification={() => setIsVerificationOpen(true)}
+            onStartVenting={() => {
+              setActiveTab('vent');
+              window.scrollTo({ top: 400, behavior: 'smooth' });
+            }}
+            onExploreCommunity={() => {
+              setActiveTab('community');
+              window.scrollTo({ top: 400, behavior: 'smooth' });
+            }}
           />
         )}
       </main>
@@ -356,6 +382,16 @@ export default function App() {
         onVerificationComplete={() => {
           handleUpdateProfile({ isVerified: true, verifiedAt: new Date().toISOString() });
         }}
+        onUpdatePseudonym={(newPseudo) => {
+          handleUpdateProfile({ pseudonym: newPseudo });
+        }}
+      />
+
+      <PaidBuddyPricingModal
+        isOpen={isPricingOpen}
+        onClose={() => setIsPricingOpen(false)}
+        userProfile={userProfile}
+        onUpdateProfile={handleUpdateProfile}
       />
 
       <NotificationSettingsModal
