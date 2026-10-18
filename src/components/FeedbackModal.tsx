@@ -116,7 +116,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             {/* Felt Heard Poll */}
             <div>
               <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider mb-2">
-                Did the AI listener make you feel genuinely heard?
+                Did your assistant Ananya make you feel genuinely heard?
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button

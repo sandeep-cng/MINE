@@ -13,14 +13,14 @@ import {
 import { UserProfile } from '../types';
 
 interface PrototypeBannerProps {
-  onOpenLOFA: () => void;
+  onOpenFeedback: () => void;
   onOpenVerification: () => void;
   onOpenPricing: () => void;
   userProfile: UserProfile;
 }
 
 export const PrototypeBanner: React.FC<PrototypeBannerProps> = ({
-  onOpenLOFA,
+  onOpenFeedback,
   onOpenVerification,
   onOpenPricing,
   userProfile,
@@ -65,12 +65,12 @@ export const PrototypeBanner: React.FC<PrototypeBannerProps> = ({
           {/* Action Chips */}
           <div className="flex flex-wrap items-center gap-2 text-xs w-full lg:w-auto justify-end">
             <button
-              onClick={onOpenLOFA}
+              onClick={onOpenFeedback}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-900/70 hover:bg-purple-800 border border-purple-700/60 text-purple-200 transition text-[11px] font-semibold cursor-pointer"
-              title="View the 5 Ranked Leap-of-Faith Assumptions"
+              title="Give Early Adopter Feedback"
             >
-              <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
-              <span>Ranked Assumptions (LOFA)</span>
+              <Heart className="w-3.5 h-3.5 text-pink-400" />
+              <span>Early Access Feedback</span>
             </button>
 
             <button

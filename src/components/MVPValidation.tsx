@@ -7,32 +7,34 @@ import {
   MessageSquare,
   Mail,
   ShieldCheck,
-  TrendingUp,
   Heart,
   Headphones,
   Compass,
   BookOpen,
   Calendar,
+  Lock,
+  Users,
+  UserCheck,
+  ArrowRight,
 } from 'lucide-react';
 import { UserProfile } from '../types';
-import { LOFAMatrix } from './LOFAMatrix';
 
 interface MVPValidationProps {
   userProfile: UserProfile;
   onUpdateProfile: (updates: Partial<UserProfile>) => void;
-  onOpenPricing: () => void;
-  onOpenVerification: () => void;
-  onStartVenting: () => void;
-  onExploreCommunity: () => void;
+  onOpenPricing?: () => void;
+  onOpenVerification?: () => void;
+  onStartVenting?: () => void;
+  onExploreCommunity?: () => void;
 }
 
 const MVP_FEATURE_OPTIONS = [
   {
     id: 'live_voice',
-    title: 'Live Voice-to-Voice AI Listener',
-    desc: 'Real-time phone-like voice conversation with an empathetic AI listener (powered by Gemini Live).',
+    title: 'Live Voice-to-Voice Listener',
+    desc: 'Real-time phone-like voice conversation with a gentle empathetic companion.',
     icon: Headphones,
-    category: 'AI Empathy',
+    category: 'Empathy',
     colorName: 'Lavender Mist',
     style: {
       cardNormal: 'bg-gradient-to-br from-purple-50/80 via-white to-violet-50/50 border-purple-200/90 hover:border-purple-400',
@@ -62,7 +64,7 @@ const MVP_FEATURE_OPTIONS = [
   {
     id: 'licensed_therapy',
     title: 'Licensed Female Therapy Network',
-    desc: 'Affordable, accredited female trauma, postpartum, and relationship counselors on demand.',
+    desc: 'Affordable, accredited female trauma, postpartum, and career counselors on demand.',
     icon: ShieldCheck,
     category: 'Clinical',
     colorName: 'Rose Quartz',
@@ -110,7 +112,7 @@ const MVP_FEATURE_OPTIONS = [
   {
     id: 'mentor_matching',
     title: '1-on-1 Peer Sister Mentorship',
-    desc: 'Get paired with a sister who has already navigated and healed from your exact same situation.',
+    desc: 'Get paired with a sister who has already navigated and healed from your exact situation.',
     icon: Heart,
     category: 'Mentorship',
     colorName: 'Mauve Orchid',
@@ -130,9 +132,18 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
   onUpdateProfile,
   onOpenPricing,
   onOpenVerification,
-  onStartVenting,
-  onExploreCommunity,
 }) => {
+  // Survey responses
+  const [willingProfessionalHelp, setWillingProfessionalHelp] = useState(
+    'Yes, definitely (1-on-1 licensed female therapist)'
+  );
+  const [willingJoinCircles, setWillingJoinCircles] = useState(
+    'Yes, definitely (Working women, mothers, students, divorce circles)'
+  );
+  const [preferredEngagement, setPreferredEngagement] = useState<string[]>([
+    'Daily 8 PM gentle WhatsApp breath & reflection',
+    'On-demand venting whenever feelings get heavy',
+  ]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([
     'live_voice',
     'whatsapp_daily',
@@ -141,30 +152,38 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
   const [feedback, setFeedback] = useState('');
   const [email, setEmail] = useState(userProfile.email || '');
   const [whatsapp, setWhatsapp] = useState(userProfile.whatsapp || '');
-  const [interestLevel, setInterestLevel] = useState('Very High - Need this now');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const [stats, setStats] = useState<{
     totalCount: number;
-    featureVotes: Record<string, number>;
+    willingProfPercent: number;
+    willingCirclesPercent: number;
   } | null>(null);
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/mvp-interest/stats');
+      const res = await fetch('/api/early-adopter/feedback/stats');
       const data = await res.json();
       if (data.success) {
         setStats(data);
       }
     } catch (err) {
-      console.warn('Failed to fetch MVP stats:', err);
+      console.warn('Failed to fetch stats:', err);
     }
   };
 
   useEffect(() => {
     fetchStats();
   }, []);
+
+  const toggleEngagement = (mode: string) => {
+    if (preferredEngagement.includes(mode)) {
+      setPreferredEngagement(preferredEngagement.filter((m) => m !== mode));
+    } else {
+      setPreferredEngagement([...preferredEngagement, mode]);
+    }
+  };
 
   const toggleFeature = (id: string) => {
     if (selectedFeatures.includes(id)) {
@@ -176,27 +195,25 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedFeatures.length === 0) {
-      alert('Please select at least one feature you would like to see.');
-      return;
-    }
-
     setIsSubmitting(true);
+
     try {
       const featureTitles = selectedFeatures.map(
         (id) => MVP_FEATURE_OPTIONS.find((opt) => opt.id === id)?.title || id
       );
 
-      const res = await fetch('/api/mvp-interest', {
+      const res = await fetch('/api/early-adopter/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           pseudonym: userProfile.pseudonym,
           email,
           whatsapp,
+          willingProfessionalHelp,
+          willingJoinCircles,
+          preferredEngagement,
           featuresVoted: featureTitles,
           feedback,
-          interestLevel,
         }),
       });
 
@@ -206,10 +223,10 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
         onUpdateProfile({ email, whatsapp });
         fetchStats();
       } else {
-        alert(data.error || 'Failed to submit interest.');
+        alert(data.error || 'Failed to submit feedback.');
       }
     } catch (err) {
-      console.error('Failed to submit MVP interest:', err);
+      console.error('Failed to submit feedback:', err);
       alert('Network issue. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -217,29 +234,35 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-12">
-      {/* 1. Ranked Leap-of-Faith Assumptions Matrix */}
-      <LOFAMatrix
-        userProfile={userProfile}
-        onOpenPricing={onOpenPricing}
-        onOpenVerification={onOpenVerification}
-        onStartVenting={onStartVenting}
-        onExploreCommunity={onExploreCommunity}
-      />
+    <div className="max-w-4xl mx-auto px-4 py-10">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-purple-600 block mb-2">
+          EARLY ADOPTER VOICE & FEEDBACK
+        </span>
+        <h2 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
+          Shape HerSanctuary Before Launch
+        </h2>
+        <p className="mt-3 text-sm sm:text-base text-stone-600 max-w-2xl mx-auto leading-relaxed">
+          We are designing this sanctuary for women across all life stages. Tell us how you want to be supported, whether you need professional counseling, and how you would engage most comfortably.
+        </p>
 
-      {/* 2. Feature Wishlist & Early Adopter Priority Voting */}
-      <div>
-        <div className="text-center mb-8">
-          <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-purple-600 block mb-2">
-            EARLY ADOPTER FEATURE WISHLIST
-          </span>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 leading-tight">
-            Help Us Shape the Upcoming Features
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm text-stone-600 max-w-xl mx-auto leading-relaxed">
-            Vote for the features you need most in our next release and shape HerSanctuary.
-          </p>
-        </div>
+        {stats && stats.totalCount > 0 && (
+          <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-3 text-xs bg-purple-50 px-4 py-2 rounded-full border border-purple-200">
+            <span className="text-purple-900 font-semibold">
+              🌸 {stats.totalCount} sisters responded
+            </span>
+            <span>•</span>
+            <span className="text-emerald-700 font-bold">
+              {stats.willingProfPercent}% want professional counseling option
+            </span>
+            <span>•</span>
+            <span className="text-purple-700 font-bold">
+              {stats.willingCirclesPercent}% want anonymous life-stage circles
+            </span>
+          </div>
+        )}
+      </div>
 
       {submitted ? (
         <div className="bg-white rounded-3xl p-8 border border-purple-200 shadow-xl text-center max-w-xl mx-auto">
@@ -247,80 +270,206 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <h3 className="font-serif text-2xl font-bold text-stone-900">
-            Your Voice is Recorded!
+            Thank You, Sister!
           </h3>
           <p className="mt-2 text-stone-600 text-sm leading-relaxed">
-            Thank you, <strong className="text-purple-900">🌸 {userProfile.pseudonym}</strong>.
-            Your feature votes and feedback have been added to our founder backlog and emailed to our team.
+            Your preferences, <strong className="text-purple-900">🌸 {userProfile.pseudonym}</strong>, have been recorded and shared directly with our founding team.
           </p>
-          <div className="mt-6 p-4 rounded-2xl bg-purple-50 text-left text-xs text-purple-900 space-y-1 border border-purple-200">
-            <p className="font-bold">Next Steps for Early Adopters:</p>
-            <p>• We will contact you via {whatsapp || email || 'your profile'} when the top voted features go live.</p>
-            <p>• You have priority access to licensed therapy triage and free private sisterhood rooms.</p>
+          <div className="mt-6 p-4 rounded-2xl bg-purple-50 text-left text-xs text-purple-900 space-y-1.5 border border-purple-200">
+            <p className="font-bold">What happens next:</p>
+            <p>• Your feedback determines which life-stage circles and counseling layers open first.</p>
+            <p>• We will contact you via {whatsapp || email || 'the portal'} when VIP early access begins.</p>
+            <p>• Your identity remains 100% anonymous under your protected pseudonym.</p>
           </div>
           <button
             onClick={() => setSubmitted(false)}
             className="mt-6 px-6 py-2 rounded-full bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold transition cursor-pointer"
           >
-            Update Your Feature Votes
+            Update Your Preferences
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Feature Wishlist Grid */}
+        <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm">
+          {/* Question 1: Professional Support Willingness */}
+          <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/80">
+            <label className="block text-xs font-bold text-stone-900 uppercase tracking-wider mb-2">
+              1. Would you be willing to take professional 1-on-1 support (licensed female counselors / therapists)?
+            </label>
+            <p className="text-xs text-stone-500 mb-3.5">
+              Testing demand for accredited female clinical counseling alongside peer sisterhood.
+            </p>
+
+            <div className="space-y-2 text-xs">
+              {[
+                'Yes, definitely (1-on-1 licensed female therapist)',
+                'Only during acute crisis or major life transitions (heartbreak, divorce, postpartum)',
+                'Prefer free sister circles and self-guided CBT exercises only',
+                'Not right now / Undecided',
+              ].map((opt) => (
+                <label
+                  key={opt}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${
+                    willingProfessionalHelp === opt
+                      ? 'bg-purple-50/80 border-purple-400 text-purple-950 font-semibold'
+                      : 'bg-white border-stone-200 text-stone-700 hover:border-purple-200'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="willingProfessionalHelp"
+                    checked={willingProfessionalHelp === opt}
+                    onChange={() => setWillingProfessionalHelp(opt)}
+                    className="accent-purple-700"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+
+            {onOpenPricing && (
+              <div className="mt-3 text-right">
+                <button
+                  type="button"
+                  onClick={onOpenPricing}
+                  className="text-xs text-purple-700 hover:text-purple-900 font-semibold underline cursor-pointer"
+                >
+                  View Proposed Therapy & Buddy Pricing ($/₹) →
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Question 2: Sister Circles Willingness */}
+          <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/80">
+            <label className="block text-xs font-bold text-stone-900 uppercase tracking-wider mb-2">
+              2. Would you join an anonymous sister circle with women in your specific life stage?
+            </label>
+            <p className="text-xs text-stone-500 mb-3.5">
+              Circles for working women, career returners, mothers, teens, divorce healing, single life, and bereavement.
+            </p>
+
+            <div className="space-y-2 text-xs">
+              {[
+                'Yes, definitely (Working women, mothers, students, divorce circles)',
+                'Maybe — provided it is 100% anonymous with verified zero trolls',
+                'Prefer 1-on-1 private listening only',
+                'No, community forums are not for me',
+              ].map((opt) => (
+                <label
+                  key={opt}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${
+                    willingJoinCircles === opt
+                      ? 'bg-purple-50/80 border-purple-400 text-purple-950 font-semibold'
+                      : 'bg-white border-stone-200 text-stone-700 hover:border-purple-200'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="willingJoinCircles"
+                    checked={willingJoinCircles === opt}
+                    onChange={() => setWillingJoinCircles(opt)}
+                    className="accent-purple-700"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Question 3: Preferred Ways to Engage */}
+          <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/80">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                3. How would you engage most comfortably? (Select all that apply)
+              </label>
+              <span className="text-xs text-purple-700 font-semibold">
+                {preferredEngagement.length} selected
+              </span>
+            </div>
+            <p className="text-xs text-stone-500 mb-3.5">
+              Help us build daily habits that feel soothing rather than burdensome.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+              {[
+                'Daily 8 PM gentle WhatsApp breath & reflection',
+                'On-demand venting whenever feelings get heavy',
+                'Weekly 1-on-1 emotional buddy check-in',
+                'Weekly 15-minute camera-off live audio circles',
+                'Private encrypted emotional healing journal',
+                'Peer mentorship with a sister who overcame the same pain',
+              ].map((mode) => {
+                const isChecked = preferredEngagement.includes(mode);
+                return (
+                  <div
+                    key={mode}
+                    onClick={() => toggleEngagement(mode)}
+                    className={`p-3 rounded-xl border transition cursor-pointer flex items-center gap-2.5 ${
+                      isChecked
+                        ? 'bg-purple-50 border-purple-400 text-purple-950 font-semibold'
+                        : 'bg-white border-stone-200 text-stone-700 hover:border-purple-200'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {}}
+                      className="accent-purple-700"
+                    />
+                    <span>{mode}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Question 4: Upcoming Features Wishlist */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider">
-                1. Which features would you use the most? (Select all that apply)
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                4. Which upcoming features are most important to you?
               </label>
               <span className="text-xs text-purple-700 font-semibold">
                 {selectedFeatures.length} selected
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {MVP_FEATURE_OPTIONS.map((opt) => {
-                const Icon = opt.icon;
                 const isSelected = selectedFeatures.includes(opt.id);
+                const IconComponent = opt.icon;
+
                 return (
                   <div
                     key={opt.id}
                     onClick={() => toggleFeature(opt.id)}
-                    className={`p-4.5 rounded-3xl border-2 transition-all duration-200 cursor-pointer flex items-start gap-3.5 relative overflow-hidden group ${
+                    className={`p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                       isSelected ? opt.style.cardSelected : opt.style.cardNormal
                     }`}
                   >
-                    <div
-                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
-                        isSelected ? opt.style.iconBoxSelected : opt.style.iconBoxNormal
-                      }`}
-                    >
-                      <Icon className="w-4.5 h-4.5" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={`text-xs font-bold leading-snug ${opt.style.titleColor}`}>
-                          {opt.title}
-                        </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${opt.style.badge}`}>
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${opt.style.badge}`}>
                           {opt.category}
                         </span>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
+                          isSelected ? opt.style.iconBoxSelected : opt.style.iconBoxNormal
+                        }`}>
+                          <IconComponent className="w-4 h-4" />
+                        </div>
                       </div>
-                      <p className="mt-1.5 text-xs text-stone-600 leading-relaxed font-light">
+                      <h4 className={`font-serif font-bold text-sm mb-1 ${opt.style.titleColor}`}>
+                        {opt.title}
+                      </h4>
+                      <p className="text-xs text-stone-600 font-light leading-relaxed">
                         {opt.desc}
                       </p>
-                      <div className="mt-2.5 flex items-center justify-between text-[11px]">
-                        <span className="text-[10px] text-stone-400 font-medium">
-                          Palette: {opt.colorName}
-                        </span>
-                        <span
-                          className={`font-semibold flex items-center gap-1 ${
-                            isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'
-                          }`}
-                        >
-                          {isSelected ? '✓ Selected' : '+ Add Vote'}
-                        </span>
-                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-stone-200/50 flex items-center justify-between text-xs font-semibold">
+                      <span className={isSelected ? 'text-purple-700' : 'text-stone-400'}>
+                        {isSelected ? '✓ Voted' : '+ Vote for this'}
+                      </span>
                     </div>
                   </div>
                 );
@@ -328,125 +477,65 @@ export const MVPValidation: React.FC<MVPValidationProps> = ({
             </div>
           </div>
 
-          {/* User Feedback Question: What can be added? */}
-          <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-2xs">
-            <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider mb-2">
-              2. What else would bring you peace and emotional comfort? (Suggestions for MVP)
+          {/* Open Feedback */}
+          <div>
+            <label className="block text-xs font-bold text-stone-900 uppercase tracking-wider mb-1.5">
+              5. What would make this your safest healing sanctuary?
             </label>
             <textarea
+              rows={3}
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              placeholder="e.g. 'I wish there was a room for women dealing with narcissistic partners', or 'I need a panic attack SOS button with soothing sounds'..."
-              rows={3}
-              className="w-full p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs sm:text-sm focus:border-purple-400 focus:bg-white focus:outline-hidden resize-none leading-relaxed"
+              placeholder="Tell our founding team what would make you feel truly safe, understood, and willing to return..."
+              className="w-full p-3 rounded-2xl bg-stone-50 border border-stone-200 text-xs sm:text-sm focus:border-purple-400 focus:outline-hidden"
             />
           </div>
 
-          {/* Contact & Early Access */}
-          <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-2xs">
-            <div className="flex items-center justify-between mb-4">
-              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider">
-                3. Early Access Notification (WhatsApp & Email)
-              </label>
-              <span className="text-xs text-stone-400">Kept strictly confidential</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Contact Details (Optional) */}
+          <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 text-xs space-y-3">
+            <span className="font-bold text-purple-950 block">
+              Where should we send your private early-access invitation? (Optional)
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  WhatsApp Number (with country code)
-                </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="+1 (555) 000-0000 or +91 98765 43210"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs sm:text-sm focus:border-purple-400 focus:bg-white focus:outline-hidden"
-                  />
-                  <MessageSquare className="w-4 h-4 text-emerald-600 absolute right-3 top-2.5" />
-                </div>
+                <label className="block text-stone-600 mb-1">WhatsApp Number:</label>
+                <input
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="+1 or +91..."
+                  className="w-full px-3 py-1.5 rounded-xl bg-white border border-stone-200 focus:outline-purple-600"
+                />
               </div>
-
               <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="sister@example.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs sm:text-sm focus:border-purple-400 focus:bg-white focus:outline-hidden"
-                  />
-                  <Mail className="w-4 h-4 text-stone-400 absolute right-3 top-2.5" />
-                </div>
+                <label className="block text-stone-600 mb-1">Email Address:</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="sister@example.com"
+                  className="w-full px-3 py-1.5 rounded-xl bg-white border border-stone-200 focus:outline-purple-600"
+                />
               </div>
             </div>
+            <p className="text-[11px] text-purple-800 flex items-center gap-1">
+              <Lock className="w-3.5 h-3.5 text-purple-600" />
+              <span>You are signed in as <strong>🌸 {userProfile.pseudonym}</strong>. Contact details are never public.</span>
+            </p>
+          </div>
 
-            <div className="mt-4 pt-4 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-stone-600 font-medium">Interest Level:</span>
-                <select
-                  value={interestLevel}
-                  onChange={(e) => setInterestLevel(e.target.value)}
-                  className="px-2.5 py-1.5 rounded-lg bg-stone-50 border border-stone-200 text-xs font-semibold text-stone-800"
-                >
-                  <option>Very High - Need this now</option>
-                  <option>Interested in joining</option>
-                  <option>Just browsing / curious</option>
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="py-2.5 px-6 rounded-full bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm transition flex items-center gap-2 shadow-sm cursor-pointer"
-              >
-                <Send className="w-4 h-4" />
-                <span>{isSubmitting ? 'Recording...' : 'Submit MVP Wishlist & Join'}</span>
-              </button>
-            </div>
+          <div className="text-center pt-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-8 py-3 rounded-full bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs sm:text-sm transition shadow-lg shadow-purple-200 flex items-center justify-center gap-2 mx-auto cursor-pointer"
+            >
+              <Send className="w-4 h-4" />
+              <span>{isSubmitting ? 'Recording Your Preferences...' : 'Submit Early Adopter Preferences'}</span>
+            </button>
           </div>
         </form>
       )}
-
-      {/* Community Wishlist Live Stats */}
-      {stats && stats.totalCount > 0 && (
-        <div className="mt-12 p-6 rounded-3xl bg-purple-950 text-white border border-purple-800">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-purple-400" />
-              <h4 className="font-serif font-bold text-sm">
-                Community MVP Wishlist Trends ({stats.totalCount} sisters polled)
-              </h4>
-            </div>
-            <span className="text-xs text-purple-300">Live Validation</span>
-          </div>
-
-          <div className="space-y-2.5">
-            {Object.entries(stats.featureVotes || {}).map(([feature, votes]) => {
-              const percent = Math.round((votes / (stats.totalCount || 1)) * 100);
-              return (
-                <div key={feature} className="text-xs">
-                  <div className="flex justify-between text-purple-200 mb-1">
-                    <span>{feature}</span>
-                    <span className="font-bold text-purple-300">{percent}% ({votes} votes)</span>
-                  </div>
-                  <div className="w-full bg-purple-900 h-1.5 rounded-full overflow-hidden">
-                    <div
-                      className="bg-purple-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      </div>
     </div>
   );
 };

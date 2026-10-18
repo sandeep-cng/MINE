@@ -170,3 +170,16 @@ export interface WillingnessToPayEntry {
   feedback?: string;
   wouldPay: boolean;
 }
+
+export interface EarlyAdopterFeedback {
+  id: string;
+  timestamp: string;
+  pseudonym: string;
+  email?: string;
+  whatsapp?: string;
+  willingProfessionalHelp: string;
+  willingJoinCircles: string;
+  preferredEngagement: string[];
+  featuresVoted: string[];
+  feedback?: string;
+}

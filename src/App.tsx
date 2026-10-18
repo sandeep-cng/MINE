@@ -141,7 +141,7 @@ export default function App() {
     <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col font-sans selection:bg-purple-200 selection:text-purple-950">
       {/* Top Prototype Preview Clarity Banner (Matches flavor-bridge-prototype.lovable.app standard) */}
       <PrototypeBanner
-        onOpenLOFA={() => {
+        onOpenFeedback={() => {
           setActiveTab('mvp');
           window.scrollTo({ top: 300, behavior: 'smooth' });
         }}
@@ -292,7 +292,7 @@ export default function App() {
                     onClick={() => setActiveTab('vent')}
                     className="hover:text-purple-300 transition"
                   >
-                    AI Empathetic Venting
+                    Your Assistant Ananya
                   </button>
                 </li>
                 <li>
@@ -316,7 +316,7 @@ export default function App() {
                     onClick={() => setActiveTab('mvp')}
                     className="hover:text-purple-300 transition"
                   >
-                    MVP Feature Wishlist
+                    Early Access & Feedback
                   </button>
                 </li>
                 <li>
@@ -351,9 +351,9 @@ export default function App() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setIsAdminStatsOpen(true)}
-                className="hover:text-white transition"
+                className="hover:text-white transition font-medium text-purple-300"
               >
-                Care Database & Notification Logs
+                Website Owner Portal & Feedback Data
               </button>
               <button
                 onClick={() => setIsFeedbackOpen(true)}

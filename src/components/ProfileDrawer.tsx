@@ -257,7 +257,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                       <span>Sentiment & Distress Trajectory Over Time</span>
                     </h4>
                     <p className="text-xs text-stone-500 font-light">
-                      Tracking how venting to Ananya alleviates internal distress and elevates calm relief.
+                      Tracking how venting to your assistant Ananya alleviates internal distress and elevates calm relief.
                     </p>
                   </div>
                   <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">

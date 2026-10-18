@@ -66,7 +66,7 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
       {
         id: 'welcome-1',
         role: 'model',
-        content: `Welcome to this sacred space, ${userProfile.pseudonym}. I am Ananya, your empathetic listener.\n\nTake off the heavy armor you've been wearing all day. Whatever is weighing down your heart — heartbreak, postpartum exhaustion, burnout, or grief — you can speak freely here without fear of judgment. How is your heart feeling right now?`,
+        content: `Welcome to this sacred space, ${userProfile.pseudonym}. I am your assistant Ananya.\n\nTake off the heavy armor you've been wearing all day. Whatever is weighing down your heart — heartbreak, postpartum exhaustion, burnout, or grief — you can speak freely here without fear of judgment. How is your heart feeling right now?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         soothingAffirmation: 'You are safe, your feelings are completely valid, and you are not alone.',
       },
@@ -251,7 +251,7 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
           onAddEmotionalMilestone(milestone);
         }
       } else {
-        alert(data.error || 'Failed to receive AI response. Please try again.');
+        alert(data.error || 'Failed to receive response from your assistant Ananya. Please try again.');
       }
     } catch (err) {
       console.error('Failed to submit vent:', err);
@@ -338,7 +338,7 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-900 text-xs font-semibold mb-3 shadow-xs">
           <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-          <span>Structured CBT & Emotional Grounding Sanctuary</span>
+          <span>Structured CBT & Emotional Grounding with Your Assistant Ananya</span>
         </div>
         <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
           Tell Me Everything. You Are Safe Here.
@@ -484,7 +484,7 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
               >
                 {msg.role === 'model' && (
                   <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
-                    <Bot className="w-5 h-5" />
+                    <Sparkles className="w-4 h-4 text-purple-200" />
                   </div>
                 )}
 
@@ -498,7 +498,7 @@ export const AIVentingSanctuary: React.FC<AIVentingSanctuaryProps> = ({
                   {/* Header */}
                   <div className="flex items-center justify-between gap-2 mb-2 pb-1 border-b border-purple-200/40 text-xs">
                     <span className={`font-bold ${msg.role === 'user' ? 'text-purple-100' : 'text-purple-900'}`}>
-                      {msg.role === 'user' ? `🌸 ${userProfile.pseudonym}` : 'Ananya (AI Companion)'}
+                      {msg.role === 'user' ? `🌸 ${userProfile.pseudonym}` : 'Your assistant Ananya'}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className={`text-[11px] ${msg.role === 'user' ? 'text-purple-200' : 'text-stone-400'}`}>

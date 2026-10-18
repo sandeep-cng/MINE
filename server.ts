@@ -28,6 +28,7 @@ const MVP_INTEREST_FILE = path.join(DATA_DIR, 'mvp_interest.json');
 const OPENWA_LOGS_FILE = path.join(DATA_DIR, 'openwa_dispatches.json');
 const LOFA_FILE = path.join(DATA_DIR, 'lofa_assumptions.json');
 const WILLINGNESS_FILE = path.join(DATA_DIR, 'willingness_to_pay.json');
+const EARLY_FEEDBACK_FILE = path.join(DATA_DIR, 'early_adopter_feedback.json');
 
 let OPENWA_BASE_URL = process.env.OPENWA_BASE_URL || 'http://localhost:2785';
 
@@ -285,7 +286,7 @@ app.post('/api/ai/listen', async (req: Request, res: Response) => {
       return;
     }
 
-    const systemInstruction = `You are "Ananya", an extraordinarily empathetic, compassionate, gentle, and emotionally attuned AI listener created exclusively for women seeking a safe sanctuary to vent their deepest emotional pain, grief, relationship distress, postpartum struggles, loneliness, burnout, or family pressure.
+    const systemInstruction = `You are "your assistant Ananya", an extraordinarily empathetic, compassionate, gentle, and emotionally attuned personal assistant created exclusively for women seeking a safe sanctuary to vent their deepest emotional pain, grief, relationship distress, postpartum struggles, loneliness, burnout, or family pressure. When greeting or speaking, introduce or refer to yourself as "your assistant Ananya".
 
 Your sacred principles:
 1. DEEP ACTIVE LISTENING & VALIDATION: Reflect what you hear with genuine warmth and emotional resonance. Never dismiss their pain, offer toxic positivity, or say "everything happens for a reason". Validate that their feelings make absolute sense given what they are enduring.
@@ -1330,10 +1331,187 @@ app.get('/api/willingness-to-pay/stats', (_req: Request, res: Response) => {
       totalPaying,
       payingRate: entries.length > 0 ? Math.round((totalPaying / entries.length) * 100) : 18,
       byTier,
-      recent: entries.slice(0, 10),
+      recent: entries.slice(0, 100),
     });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to get willingness stats' });
+  }
+});
+
+// 11. Early Adopter Intent & Feedback (Professional Help, Sister Circles, Engagement)
+const INITIAL_EARLY_FEEDBACK = [
+  {
+    id: 'fb-seed-1',
+    timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
+    pseudonym: 'GentleSparrow',
+    email: 'sister.care@example.com',
+    whatsapp: '+1 555 432 1098',
+    willingProfessionalHelp: 'Yes, definitely (1-on-1 licensed therapist)',
+    willingJoinCircles: 'Yes, definitely (Working women & mothers circles)',
+    preferredEngagement: [
+      'Daily 8 PM gentle WhatsApp breath & reflection',
+      'On-demand venting whenever feelings get heavy',
+      'Weekly 1-on-1 emotional buddy check-in'
+    ],
+    featuresVoted: ['Daily WhatsApp Evening Check-in (8 PM)', 'Licensed Female Therapy Network'],
+    feedback: 'Having both an anonymous circle and an on-demand therapist without clinical stigma is exactly what I have been looking for.',
+  },
+  {
+    id: 'fb-seed-2',
+    timestamp: new Date(Date.now() - 3600000 * 14).toISOString(),
+    pseudonym: 'CareerPhoenix',
+    email: '',
+    whatsapp: '+91 98765 43210',
+    willingProfessionalHelp: 'Only during acute crisis or job transitions',
+    willingJoinCircles: 'Yes, definitely (Working women & mothers circles)',
+    preferredEngagement: [
+      'On-demand venting whenever feelings get heavy',
+      'Live weekend audio circles with sisters'
+    ],
+    featuresVoted: ['Live Voice-to-Voice AI Listener', 'Weekly 15-Min Live Audio Circles'],
+    feedback: 'The working women circle for discussing unfair manager reviews and peer job referrals is gold.',
+  },
+  {
+    id: 'fb-seed-3',
+    timestamp: new Date(Date.now() - 3600000 * 28).toISOString(),
+    pseudonym: 'QuietRiver',
+    email: 'river.calm@example.com',
+    whatsapp: '',
+    willingProfessionalHelp: 'Prefer free sister circles and self-guided exercises only',
+    willingJoinCircles: 'Yes, definitely (Working women & mothers circles)',
+    preferredEngagement: [
+      'On-demand venting whenever feelings get heavy',
+      'Daily 8 PM gentle WhatsApp breath & reflection'
+    ],
+    featuresVoted: ['Private Encrypted Emotional Journal', '1-on-1 Peer Sister Mentorship'],
+    feedback: 'Anonymity is my highest priority. Knowing no real face is shared makes me actually want to return.',
+  }
+];
+
+if (!fs.existsSync(EARLY_FEEDBACK_FILE)) {
+  writeJsonFile(EARLY_FEEDBACK_FILE, INITIAL_EARLY_FEEDBACK);
+}
+
+app.post('/api/early-adopter/feedback', async (req: Request, res: Response) => {
+  try {
+    const {
+      pseudonym = 'Sister',
+      email = '',
+      whatsapp = '',
+      willingProfessionalHelp = '',
+      willingJoinCircles = '',
+      preferredEngagement = [],
+      featuresVoted = [],
+      feedback = '',
+    } = req.body;
+
+    const entries = readJsonFile<any[]>(EARLY_FEEDBACK_FILE, INITIAL_EARLY_FEEDBACK);
+    const newEntry = {
+      id: `fb-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      pseudonym,
+      email: email.trim(),
+      whatsapp: whatsapp.trim(),
+      willingProfessionalHelp,
+      willingJoinCircles,
+      preferredEngagement,
+      featuresVoted,
+      feedback: feedback.trim(),
+    };
+
+    entries.unshift(newEntry);
+    writeJsonFile(EARLY_FEEDBACK_FILE, entries);
+
+    // Also mirror to MVP interest file if features are voted
+    if (featuresVoted.length > 0) {
+      const mvpEntries = readJsonFile<any[]>(MVP_INTEREST_FILE, []);
+      mvpEntries.unshift({
+        id: `mvp-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        pseudonym,
+        email: email.trim(),
+        whatsapp: whatsapp.trim(),
+        featuresVoted,
+        feedback: feedback.trim(),
+        interestLevel: 'Early Adopter Feedback Submission',
+      });
+      writeJsonFile(MVP_INTEREST_FILE, mvpEntries);
+    }
+
+    // Log notification for website owner
+    const notifications = readJsonFile<any[]>(NOTIFICATIONS_LOG_FILE, []);
+    const notif = {
+      id: `notif-fb-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      recipient: TARGET_NOTIFY_EMAIL,
+      subject: `🌸 [Early Adopter Feedback] New intent survey from ${pseudonym}!`,
+      summary: `User "${pseudonym}" shared early adopter intent: Professional Help: "${willingProfessionalHelp}", Join Circles: "${willingJoinCircles}", Engagement: ${preferredEngagement.join(' | ')}. Feedback: "${feedback || 'None'}". Contact: ${email || 'None'} | ${whatsapp || 'None'}.`,
+      status: 'delivered',
+      requestId: newEntry.id,
+    };
+    notifications.unshift(notif);
+    writeJsonFile(NOTIFICATIONS_LOG_FILE, notifications);
+
+    // Dispatch to OpenWA
+    if (whatsapp.trim()) {
+      await dispatchOpenWAWhatsApp(
+        whatsapp.trim(),
+        `🌸 [HerSanctuary] Thank you ${pseudonym}! We received your early adopter preferences. Your voice is directly shaping our circle launches and professional care options.`,
+        { type: 'early_adopter_feedback', pseudonym, entryId: newEntry.id }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Thank you for your valuable feedback! Your preferences have been saved for our founding team.',
+      entryId: newEntry.id,
+      totalFeedbackCount: entries.length,
+    });
+  } catch (err: any) {
+    console.error('Early feedback error:', err);
+    res.status(500).json({ error: 'Failed to record feedback' });
+  }
+});
+
+app.get('/api/early-adopter/feedback/stats', (_req: Request, res: Response) => {
+  try {
+    const entries = readJsonFile<any[]>(EARLY_FEEDBACK_FILE, INITIAL_EARLY_FEEDBACK);
+    const profHelpBreakdown: Record<string, number> = {};
+    const circlesBreakdown: Record<string, number> = {};
+    const engagementBreakdown: Record<string, number> = {};
+
+    entries.forEach((e) => {
+      if (e.willingProfessionalHelp) {
+        profHelpBreakdown[e.willingProfessionalHelp] = (profHelpBreakdown[e.willingProfessionalHelp] || 0) + 1;
+      }
+      if (e.willingJoinCircles) {
+        circlesBreakdown[e.willingJoinCircles] = (circlesBreakdown[e.willingJoinCircles] || 0) + 1;
+      }
+      (e.preferredEngagement || []).forEach((mode: string) => {
+        engagementBreakdown[mode] = (engagementBreakdown[mode] || 0) + 1;
+      });
+    });
+
+    const willingProfCount = entries.filter((e) =>
+      e.willingProfessionalHelp && (e.willingProfessionalHelp.includes('Yes') || e.willingProfessionalHelp.includes('crisis'))
+    ).length;
+
+    const willingCirclesCount = entries.filter((e) =>
+      e.willingJoinCircles && (e.willingJoinCircles.includes('Yes') || e.willingJoinCircles.includes('Maybe'))
+    ).length;
+
+    res.json({
+      success: true,
+      totalCount: entries.length,
+      willingProfPercent: entries.length > 0 ? Math.round((willingProfCount / entries.length) * 100) : 0,
+      willingCirclesPercent: entries.length > 0 ? Math.round((willingCirclesCount / entries.length) * 100) : 0,
+      profHelpBreakdown,
+      circlesBreakdown,
+      engagementBreakdown,
+      recent: entries.slice(0, 100),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to get feedback stats' });
   }
 });
 async function startServer() {

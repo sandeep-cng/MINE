@@ -48,7 +48,7 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
           </h1>
           <p className="mt-4 text-sm sm:text-base text-purple-200/90 leading-relaxed max-w-2xl mx-auto font-light">
             Pour out the grief, heartbreak, postpartum tears, or corporate burnout you’ve kept hidden.
-            An empathetic AI listens deeply to your heart, validates your feelings without toxic positivity, and connects you with a verified sisterhood walking through the exact same pain.
+            Your assistant Ananya listens deeply to your heart, validates your feelings without toxic positivity, and guides you with structured mindfulness and CBT-grounding exercises.
           </p>
         </div>
 
@@ -91,10 +91,10 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
                 </div>
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">
-                Empathetic AI Listening
+                Your Assistant Ananya
               </h3>
               <p className="text-xs text-purple-200/90 leading-relaxed font-light">
-                Voice or text vent chamber. Receive gentle, validating reflections without toxic positivity, plus interactive 4-4-4 breathing guidance.
+                Voice or text emotional chamber. Speak freely with your assistant Ananya, catch cognitive distortions with structured CBT, and practice somatic calming.
               </p>
             </div>
             <div className="mt-5 pt-3.5 border-t border-purple-700/60 flex items-center justify-between text-xs text-purple-300 font-semibold group-hover:text-white relative z-10">
@@ -122,7 +122,7 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
                 Sister Community Circles
               </h3>
               <p className="text-xs text-pink-200/90 leading-relaxed font-light">
-                Matched automatically by AI to sisters enduring similar challenges — postpartum overwhelm, heartbreak, grief, or workplace burnout.
+                Gently matched with sisters enduring similar challenges — postpartum overwhelm, heartbreak, grief, or workplace burnout.
               </p>
             </div>
             <div className="mt-5 pt-3.5 border-t border-rose-800/60 flex items-center justify-between text-xs text-pink-300 font-semibold group-hover:text-white relative z-10">
@@ -168,13 +168,13 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
             </div>
             <div className="text-xs">
               <p className="font-bold text-white flex items-center gap-1.5">
-                <span>Ranked Leap-of-Faith Assumptions & MVP Testing</span>
+                <span>Early Adopter Feedback & Feature Wishlist</span>
                 <span className="text-[10px] bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/40">
                   PROTOTYPE PREVIEW
                 </span>
               </p>
               <p className="text-purple-300">
-                Explore our 5 ranked venture hypotheses (Willingness-to-pay, Trust, Repeat Habit) & vote on feature backlog.
+                Tell us whether you would like professional counseling, peer sister circles, or daily evening check-ins.
               </p>
             </div>
           </div>
@@ -182,7 +182,7 @@ export const HeroCTA: React.FC<HeroCTAProps> = ({
             onClick={onOpenMVP}
             className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
-            <span>Explore LOFA & Vote</span>
+            <span>Share Feedback & Vote</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

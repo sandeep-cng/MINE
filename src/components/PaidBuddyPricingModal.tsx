@@ -190,14 +190,13 @@ export const PaidBuddyPricingModal: React.FC<PaidBuddyPricingModalProps> = ({
             {/* Header */}
             <div className="text-center mb-6">
               <span className="text-[10px] font-bold uppercase tracking-widest text-purple-700 block mb-1">
-                LOFA RANK #1 VALIDATION EXPERIMENT
+                PROTOTYPE PREVIEW • EMOTIONAL SUPPORT TIERS
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
-                Willingness-to-Pay Testing
+                Emotional Buddy & Care Membership
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-stone-600 max-w-lg mx-auto">
-                Will working mothers and women pay for structured emotional accompaniment?
-                Select the tier that fits your needs to test price validation.
+                Explore our proposed plans for structured emotional accompaniment, private sisterhood check-ins, and clinical guidance. Help us calibrate fair, honest pricing.
               </p>
 
               {/* Currency Selector */}

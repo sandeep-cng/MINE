@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-purple-200 hover:text-white hover:bg-purple-800/40'
               }`}
             >
-              AI Venting
+              Your Assistant Ananya
             </button>
             <button
               onClick={() => setActiveTab('community')}
@@ -106,12 +106,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Vote className="w-3.5 h-3.5 text-purple-300" />
-              <span>LOFA & MVP Testing</span>
+              <span>Early Access & Feedback</span>
             </button>
           </nav>
 
-          {/* Minimalist Right Controls: Unified Sister Profile & Quick Menu */}
+          {/* Minimalist Right Controls: Owner Data, Unified Sister Profile & Quick Menu */}
           <div className="flex items-center gap-2 relative">
+            {/* Website Owner Data Button for easy access by website owner */}
+            <button
+              onClick={onOpenAdminStats}
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-900/50 hover:bg-purple-900 text-purple-200 border border-purple-700/60 transition text-xs font-medium cursor-pointer"
+              title="Open Website Owner Portal & Feedback Analytics"
+            >
+              <Database className="w-3.5 h-3.5 text-purple-300" />
+              <span>Owner Data</span>
+            </button>
+
             {/* Unified Sister Badge / Pill */}
             <div className="relative">
               <button
@@ -196,10 +206,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                       >
                         <div className="flex items-center gap-2.5">
                           <Database className="w-3.5 h-3.5 text-purple-400" />
-                          <span>Triage DB & OpenWA {profRequestCount > 0 ? `(${profRequestCount})` : ''}</span>
+                          <span>Website Owner Portal & Data</span>
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
-                          :2785
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-200 font-semibold">
+                          Analytics
                         </span>
                       </button>
 
@@ -211,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         className="w-full text-left px-4 py-2 hover:bg-purple-900/60 flex items-center gap-2.5"
                       >
                         <MessageSquareHeart className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Share User Feedback</span>
+                        <span>Share Early Adopter Feedback</span>
                       </button>
                     </div>
                   </div>
@@ -241,7 +251,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 activeTab === 'vent' ? 'bg-purple-700 text-white' : 'text-purple-200'
               }`}
             >
-              AI Venting Sanctuary
+              Your Assistant Ananya
             </button>
             <button
               onClick={() => {
